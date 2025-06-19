@@ -15,6 +15,7 @@ app.use(bodyParser.json());
 app.use('/api/story', storyRoutes);
 app.use('/api/line', lineRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin', require('./routes/admin'));
 
 app.get('/', (req, res) => res.send('Backend is working!'));
 

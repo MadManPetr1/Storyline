@@ -1,16 +1,48 @@
 const express = require('express');
 const db = require('../db/database');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
-const path = require('path');
 
-function isAdmin(req) {
-  const password = req.headers['x-admin-password'];
-  return password && password === process.env.ADMIN_PASSWORD;
+const ADMIN_SECRET = process.env.ADMIN_SECRET
+
+// Helper: verify token middleware
+function verifyAdmin(req, res, next) {
+  const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Missing token' });
+  try {
+    const decoded = jwt.verify(token, ADMIN_SECRET);
+    if (!decoded || !decoded.admin) throw new Error();
+    next();
+  } catch {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
 }
 
-router.delete('/line/:id', (req, res) => {
-  if (!isAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+// Admin login: POST /api/admin/login { password }
+router.post('/login', (req, res) => {
+  const { password } = req.body;
+  if (!password || password !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Invalid password' });
+  }
+  // Create JWT for 12h
+  const token = jwt.sign({ admin: true }, ADMIN_SECRET, { expiresIn: '12h' });
+  res.json({ token });
+});
 
+// List lines: GET /api/admin/lines (JWT protected)
+router.get('/lines', verifyAdmin, (req, res) => {
+  db.all(
+    "SELECT id, username, color, text, created_at FROM lines ORDER BY created_at DESC",
+    [],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ lines: rows });
+    }
+  );
+});
+
+// Delete line: DELETE /api/admin/line/:id (JWT protected)
+router.delete('/line/:id', verifyAdmin, (req, res) => {
   const lineId = req.params.id;
   db.run("DELETE FROM lines WHERE id = ?", [lineId], function(err) {
     if (err) return res.status(500).json({ error: err.message });
@@ -19,10 +51,15 @@ router.delete('/line/:id', (req, res) => {
   });
 });
 
-router.get('/download-db', (req, res) => {
-  // Password check here!
-  const dbPath = process.env.DB_PATH || '/data/database.sqlite';
-  res.download(dbPath, 'database.sqlite');
+// Stats: GET /api/admin/stats (JWT protected)
+router.get('/stats', verifyAdmin, (req, res) => {
+  db.get("SELECT COUNT(*) AS lines FROM lines", [], (err, linesRow) => {
+    if (err) return res.status(500).json({ error: err.message });
+    db.get("SELECT COUNT(DISTINCT username) AS contributors FROM lines", [], (err, usersRow) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ lines: linesRow.lines, contributors: usersRow.contributors });
+    });
+  });
 });
 
 module.exports = router;
