@@ -10,6 +10,16 @@ function getLastRename(storyId, cb) {
   );
 }
 
+router.get('/current', (req, res) => {
+  db.get("SELECT * FROM stories ORDER BY created_at DESC LIMIT 1", [], (err, story) => {
+    if (err || !story) return res.status(404).json({ error: 'No story found' });
+    db.all("SELECT * FROM lines WHERE story_id = ? ORDER BY created_at ASC", [story.id], (err, lines) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ story, lines });
+    });
+  });
+});
+
 router.post('/rename', (req, res) => {
   const { name, username } = req.body;
   if (!name || name.length < 2) return res.status(400).json({ error: 'Invalid story name' });
