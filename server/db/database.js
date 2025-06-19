@@ -46,7 +46,7 @@ db.serialize(() => {
   // Auto-insert a blank default story if no story exists
   db.get("SELECT COUNT(*) as cnt FROM stories", (err, row) => {
     if (!err && row.cnt === 0) {
-      db.run("INSERT INTO stories (name) VALUES (?)", [""], (err) => {
+      db.run("INSERT INTO stories (name) VALUES (?)", ["Untitled"], (err) => {
         if (err) {
           console.error("Failed to insert default blank story:", err.message);
         } else {
