@@ -51,6 +51,30 @@ export default function App() {
   const [nextRenameAt, setNextRenameAt] = useState(null);
   const [nextLineAt, setNextLineAt] = useState(null);
 
+  const theme = darkMode
+  ? {
+      bg: '#232327',
+      cardBg: '#1e1f22',
+      text: '#e7e7ea',
+      cardText: '#eee',
+      lineBg: '#191a1e',
+      inputBg: '#22252b',
+      border: '#333',
+      footer: '#aaa',
+      accent: '#ed3131'
+    }
+  : {
+      bg: '#f3f3f6',
+      cardBg: '#fff',
+      text: '#111',
+      cardText: '#222',
+      lineBg: '#f9f9fa',
+      inputBg: '#f5f6fb',
+      border: '#ddd',
+      footer: '#555',
+      accent: '#ed3131'
+    };
+
   // --- Fetch story and lines ---
   async function fetchStory() {
     try {
@@ -207,33 +231,33 @@ export default function App() {
 
   // --- Render ---
   return (
-    <div className={`app ${darkMode ? 'dark' : 'light'}`} style={{
+    <div className="app" style={{
       minHeight: '100vh',
-      background: darkMode ? '#232327' : '#f3f3f6',
-      color: darkMode ? '#e7e7ea' : '#111',
+      background: theme.bg,
+      color: theme.text,
       transition: 'background .3s, color .3s'
     }}>
       {/* Header */}
       <header style={{
         width: '100vw', display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', padding: '0 3vw', height: 70,
-        borderBottom: darkMode ? '1px solid #333' : '1px solid #ddd',
-        background: darkMode ? '#202023' : '#fff',
+        borderBottom: `1px solid ${theme.border}`,
+        background: theme.bg,
         position: 'sticky', top: 0, zIndex: 10,
-        boxShadow: '0 2px 12px #0002'
+        boxShadow: darkMode ? '0 2px 12px #0002' : '0 2px 12px #aaa2'
       }}>
         <div style={{ width: 52 }} />
         <div style={{
-          textAlign: 'center', fontWeight: 700, fontSize: 30, letterSpacing: 1
+          flex: 1, textAlign: 'center', fontWeight: 700, fontSize: 30, letterSpacing: 1
         }}>
           Storyline
         </div>
-        <div>
+        <div style={{ width: 52, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
           <button
             onClick={toggleDarkMode}
             style={{
               border: 'none', background: 'none', cursor: 'pointer',
-              padding: 0, marginRight: 3
+              padding: 0, marginRight: 0
             }}
             title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
           >
@@ -241,7 +265,7 @@ export default function App() {
           </button>
         </div>
       </header>
-
+          
       {/* Main content: Three columns */}
       <main style={{
         display: 'flex',
@@ -253,7 +277,8 @@ export default function App() {
         {/* Cooldown/Info panel (left) */}
         <div style={{
           minWidth: 260, maxWidth: 330, minHeight: 330,
-          background: darkMode ? '#1e1f22' : '#eaeaec',
+          background: theme.cardBg,
+          color: theme.cardText,
           borderRadius: 14, boxShadow: darkMode ? '0 0 18px #1117' : '0 0 10px #ccc5',
           padding: 28, marginTop: 8,
           display: 'flex', flexDirection: 'column', alignItems: 'flex-start'
@@ -267,23 +292,24 @@ export default function App() {
             {formatCountdown(lineCooldown, false)}
           </div>
           <div style={{ fontWeight: 700, fontSize: 17, marginBottom: 3 }}>NEXT RESET:</div>
-          <div style={{ color: '#ed3131', fontWeight: 800, fontSize: 18 }}>
+          <div style={{ color: theme.accent, fontWeight: 800, fontSize: 18 }}>
             {nextResetAt && (new Date(nextResetAt)).toLocaleDateString()}
           </div>
-          <div style={{ color: '#ed3131', fontWeight: 600, fontSize: 16, marginTop: 3 }}>
+          <div style={{ color: theme.accent, fontWeight: 600, fontSize: 16, marginTop: 3 }}>
             {formatCountdown(resetCountdown, true)}
           </div>
-          <div style={{ fontWeight: 600, color: '#ed3131', fontSize: 15, marginTop: 6 }}>
+          <div style={{ fontWeight: 600, color: theme.accent, fontSize: 15, marginTop: 6 }}>
             (NOTE: Start of every 3rd month)
           </div>
         </div>
-
+      
         {/* Story Card (center) */}
         <div style={{
           flex: 1, minWidth: 420, maxWidth: 600, minHeight: 420,
-          background: darkMode ? '#fff' : '#fff',
-          color: '#222', borderRadius: 17,
-          boxShadow: '0 0 24px #0e0e2177',
+          background: theme.cardBg,
+          color: theme.cardText,
+          borderRadius: 17,
+          boxShadow: darkMode ? '0 0 24px #0e0e2177' : '0 0 24px #aaa8',
           padding: 38, marginTop: 6, marginBottom: 18
         }}>
           {/* Header Row */}
@@ -296,10 +322,14 @@ export default function App() {
                   maxLength={38}
                   style={{
                     fontSize: 25, padding: 4, borderRadius: 5,
-                    border: '1px solid #aaa', marginRight: 12
+                    border: `1px solid ${theme.border}`, marginRight: 12,
+                    background: theme.inputBg, color: theme.text
                   }}
                 />
-                <button onClick={handleRename} style={{ marginRight: 7, fontWeight: 500, background: '#36f', color: '#fff', border: 'none', borderRadius: 5, padding: '4px 14px' }}>Save</button>
+                <button onClick={handleRename} style={{
+                  marginRight: 7, fontWeight: 500, background: '#36f', color: '#fff',
+                  border: 'none', borderRadius: 5, padding: '4px 14px'
+                }}>Save</button>
                 <button onClick={() => { setEditMode(false); setError(''); }} style={{ fontWeight: 500 }}>Cancel</button>
               </>
             ) : (
@@ -321,7 +351,7 @@ export default function App() {
               </>
             )}
           </div>
-          <hr style={{ margin: '10px 0 18px 0' }} />
+          <hr style={{ margin: '10px 0 18px 0', borderColor: theme.border }} />
           {/* Story lines or empty */}
           <div style={{ minHeight: 100, marginBottom: 19 }}>
             {lines.length === 0
@@ -329,15 +359,15 @@ export default function App() {
               : lines.map(line => (
                 <div key={line.id} style={{
                   marginBottom: 13, padding: 8,
-                  background: '#fafaff',
+                  background: theme.lineBg,
                   borderRadius: 6,
                   borderBottom: `3px solid ${line.color || '#aaa'}`
                 }}>
-                  <div style={{ color: line.color || '#333', fontWeight: 500 }}>
+                  <div style={{ color: line.color || theme.cardText, fontWeight: 500 }}>
                     {line.text}
                   </div>
                   {line.username && (
-                    <div style={{ fontSize: 13, color: line.color || '#555', marginTop: 1 }}>
+                    <div style={{ fontSize: 13, color: line.color || theme.cardText, marginTop: 1 }}>
                       [by {line.username}]
                     </div>
                   )}
@@ -347,11 +377,12 @@ export default function App() {
           {error && <div style={{ color: 'crimson', marginTop: 10, fontWeight: 600 }}>{error}</div>}
           {success && <div style={{ color: 'green', marginTop: 10, fontWeight: 600 }}>{success}</div>}
         </div>
-
+            
         {/* Add Line Box (right) */}
         <form style={{
           minWidth: 270, maxWidth: 330, minHeight: 320,
-          background: darkMode ? '#1e1f22' : '#eaeaec',
+          background: theme.cardBg,
+          color: theme.cardText,
           borderRadius: 15, boxShadow: darkMode ? '0 0 18px #1117' : '0 0 10px #ccc5',
           marginTop: 8, padding: '20px 16px 28px 16px',
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16
@@ -367,9 +398,10 @@ export default function App() {
               maxLength={20}
               style={{
                 borderRadius: 6, padding: '6px 9px', border: 'none',
-                background: darkMode ? '#22252b' : '#f5f6fb',
+                background: theme.inputBg,
+                color: theme.text,
                 fontWeight: 600, fontSize: 15, flex: 1, marginRight: 10,
-                outline: '1.5px solid #8882'
+                outline: `1.5px solid ${theme.border}22`
               }}
             />
             <input
@@ -393,7 +425,9 @@ export default function App() {
             disabled={!canAdd}
             style={{
               width: '100%', minHeight: 72, maxHeight: 160, resize: 'vertical',
-              borderRadius: 10, border: 'none', background: darkMode ? '#1b1a1e' : '#f9f9fa',
+              borderRadius: 10, border: 'none',
+              background: theme.inputBg,
+              color: theme.text,
               padding: 12, fontSize: 16, marginBottom: 8, boxShadow: '0 1px 8px #0002'
             }}
           />
@@ -410,14 +444,14 @@ export default function App() {
           </button>
         </form>
       </main>
-
+          
       {/* Footer for past stories */}
       <footer style={{
         width: '100vw', minHeight: 46,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         marginTop: 55, padding: 10, background: 'transparent',
-        color: darkMode ? '#aaa' : '#555', fontSize: 16,
-        borderTop: darkMode ? '1px solid #28292c' : '1px solid #e2e2e2'
+        color: theme.footer, fontSize: 16,
+        borderTop: `1px solid ${theme.border}`
       }}>
         {/* TODO: List/archive of past stories here */}
         Story resets every 3 months. All contributions are public.&nbsp;
