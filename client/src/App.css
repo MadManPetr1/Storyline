@@ -26,7 +26,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 3vw;
   height: 70px;
   border-bottom: 1px solid #333;
   background: #202023;
@@ -220,7 +219,6 @@ h1, h2, h3, h4 {
   align-items: center;
   justify-content: center;
   margin-top: 55px;
-  padding: 10px;
   background: transparent;
   color: #aaa;
   font-size: 16px;

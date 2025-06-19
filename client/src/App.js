@@ -1,33 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import './App.css';
-// Replace with your actual SVGs if desired
+import './App.css'; // Make sure your CSS is set up as discussed
+
 const SunSVG = () => <span style={{ fontSize: 24 }}>☀️</span>;
 const MoonSVG = () => <span style={{ fontSize: 24 }}>🌑</span>;
 const API_URL = process.env.REACT_APP_API_URL;
 
-// Utility: format seconds as DD:HH:MM:SS or M:DD:HH:MM
+// Countdown helper: DD:HH:MM
 function formatCountdown(secs) {
   if (!secs || secs <= 0) return 'Ready!';
   const d = Math.floor(secs / 86400);
   const h = Math.floor((secs % 86400) / 3600);
   const m = Math.floor((secs % 3600) / 60);
-  const s = secs % 60;
   return (
     d.toString().padStart(2, '0') + ':' +
     h.toString().padStart(2, '0') + ':' +
     m.toString().padStart(2, '0')
-    // + ':' + s.toString().padStart(2, '0') // add seconds if you want
   );
 }
 
 export default function App() {
-  // Dark/Light mode
+  // Theme
   const [darkMode, setDarkMode] = useState(true);
-  function toggleDarkMode() {
-    setDarkMode(m => !m);
-  }
+  function toggleDarkMode() { setDarkMode(m => !m); }
 
-  // State
+  // Main state
   const [story, setStory] = useState(null);
   const [lines, setLines] = useState([]);
   const [username, setUsername] = useState(localStorage.getItem('storyline_user') || '');
@@ -45,12 +41,11 @@ export default function App() {
   const [nextResetAt, setNextResetAt] = useState(null);
   const [resetCountdown, setResetCountdown] = useState(0);
 
-  // For showing who renamed last
+  // For rename and cooldown
   const [lastRenamer, setLastRenamer] = useState('');
   const [nextRenameAt, setNextRenameAt] = useState(null);
-  const [nextLineAt, setNextLineAt] = useState(null);
 
-  // --- Fetch story and lines ---
+  // --- Data fetchers ---
   async function fetchStory() {
     try {
       const res = await fetch(`${API_URL}/api/story/current`);
@@ -64,7 +59,6 @@ export default function App() {
     }
   }
 
-  // --- Fetch story rename status (global cooldown) ---
   async function fetchRenameStatus() {
     try {
       const res = await fetch(`${API_URL}/api/story/rename-status`);
@@ -79,6 +73,8 @@ export default function App() {
       }
     } catch {}
   }
+
+  // NEW: Backend-based line cooldown
   async function fetchLineCooldown() {
     try {
       const res = await fetch(`${API_URL}/api/line/cooldown`);
@@ -88,77 +84,60 @@ export default function App() {
     } catch {}
   }
 
-  // --- On mount and on updates, fetch everything ---
+  // --- Main useEffect: Initial fetch + reset logic ---
   useEffect(() => {
     fetchStory();
     fetchRenameStatus();
     fetchLineCooldown();
-    // Calculate next reset: first of every 3rd month
+
+    // Calculate next reset: first of next 3rd month (Mar, Jun, Sep, Dec)
     const now = new Date();
-    let month = now.getMonth() + 1;
     let year = now.getFullYear();
-    let nextMonth = month;
-    let nextYear = year;
-    if ((month - 1) % 3 !== 0 || now.getDate() > 1) {
-      // If today is not a reset month, or it's past the first day, go to next reset month
-      nextMonth += (3 - (month - 1) % 3);
-      if (nextMonth > 12) {
-        nextMonth -= 12;
-        nextYear++;
-      }
-    }
-    function getNextResetDate() {
-      const now = new Date();
-      let month = now.getMonth() + 1;
-      let year = now.getFullYear();
+    let month = now.getMonth() + 1;
 
-      // The reset months are 3, 6, 9, 12
-      let resetMonth;
-      if (month < 3 || (month === 3 && now.getDate() === 1 && now.getHours() === 0)) {
-        resetMonth = 3;
-      } else if (month < 6 || (month === 6 && now.getDate() === 1 && now.getHours() === 0)) {
-        resetMonth = 6;
-      } else if (month < 9 || (month === 9 && now.getDate() === 1 && now.getHours() === 0)) {
-        resetMonth = 9;
-      } else if (month < 12 || (month === 12 && now.getDate() === 1 && now.getHours() === 0)) {
-        resetMonth = 12;
-      } else {
-        // Jump to next March of next year
-        resetMonth = 3;
-        year++;
-      }
-      return new Date(year, resetMonth - 1, 1, 0, 0, 0, 0);
+    let nextResetMonth = [3, 6, 9, 12].find(m => m > month || (m === month && now.getDate() < 1));
+    if (!nextResetMonth) {
+      nextResetMonth = 3;
+      year++;
     }
 
-    const nextReset = getNextResetDate();
+    const nextReset = new Date(year, nextResetMonth - 1, 1, 0, 0, 0, 0);
     setNextResetAt(nextReset.getTime());
 
+    // Regular refresh (story, rename, line cooldown) every minute
     const interval = setInterval(() => {
       fetchStory();
       fetchRenameStatus();
       fetchLineCooldown();
-    }, 60000); // refresh every minute
+    }, 60000);
     return () => clearInterval(interval);
   }, []);
 
-  // --- Live countdown timers (1s) ---
+  // --- Timers for live UI countdowns ---
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTitleCooldown(
-        nextRenameAt ? Math.max(0, Math.floor((nextRenameAt - Date.now()) / 1000)) : 0
-      );
-      setLineCooldown(
-        nextLineAt ? Math.max(0, Math.floor((nextLineAt - Date.now()) / 1000)) : 0
-      );
-      setCanAdd(!nextLineAt || Date.now() >= nextLineAt);
-      setResetCountdown(
-        nextResetAt ? Math.max(0, Math.floor((nextResetAt - Date.now()) / 1000)) : 0
-      );
+    // Title rename cooldown
+    const cooldownTimer = setInterval(() => {
+      setTitleCooldown(nextRenameAt ? Math.max(0, Math.floor((nextRenameAt - Date.now()) / 1000)) : 0);
     }, 1000);
-    return () => clearInterval(interval);
-  }, [nextRenameAt, nextLineAt, nextResetAt]);
 
-  // --- Handle rename ---
+    // Line cooldown (client-side display only; true value always comes from backend)
+    const lineTimer = setInterval(() => {
+      setLineCooldown(prev => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    // Reset countdown
+    const resetTimer = setInterval(() => {
+      setResetCountdown(nextResetAt ? Math.max(0, Math.floor((nextResetAt - Date.now()) / 1000)) : 0);
+    }, 1000);
+
+    return () => {
+      clearInterval(cooldownTimer);
+      clearInterval(lineTimer);
+      clearInterval(resetTimer);
+    };
+  }, [nextRenameAt, nextResetAt]);
+
+  // --- Handlers ---
   async function handleRename() {
     setError('');
     if (!newTitle.trim()) {
@@ -190,7 +169,6 @@ export default function App() {
     }
   }
 
-  // --- Handle add line ---
   async function addLine(e) {
     e.preventDefault();
     setError('');
@@ -209,10 +187,7 @@ export default function App() {
       const data = await res.json();
       if (!res.ok) {
         if (data.error && data.error.includes('limit')) {
-          const nextTime = Date.now() + 24 * 60 * 60 * 1000;
-          localStorage.setItem('storyline_nextAllowed', nextTime);
-          setNextLineAt(nextTime);
-          setCanAdd(false);
+          fetchLineCooldown(); // Always fetch the real value from backend after error
         }
         throw new Error(data.error || 'Failed to add line');
       }

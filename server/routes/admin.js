@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../db/database');
 const router = express.Router();
+const path = require('path');
 
 function isAdmin(req) {
   const password = req.headers['x-admin-password'];
@@ -16,6 +17,12 @@ router.delete('/line/:id', (req, res) => {
     if (this.changes === 0) return res.status(404).json({ error: 'Line not found' });
     res.json({ success: true });
   });
+});
+
+router.get('/download-db', (req, res) => {
+  // Password check here!
+  const dbPath = process.env.DB_PATH || '/data/database.sqlite';
+  res.download(dbPath, 'database.sqlite');
 });
 
 module.exports = router;
