@@ -1,12 +1,18 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-
-// Ensure the db directory exists
 const fs = require('fs');
-const dbDir = path.join(__dirname, '.');
-if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir);
 
-const db = new sqlite3.Database(path.join(dbDir, 'database.sqlite'));
+// Use environment variable or default to /data/database.sqlite
+const dbPath = process.env.DB_PATH || '/data/database.sqlite';
+
+// Ensure the directory for the database exists
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
+// Create/connect the database
+const db = new sqlite3.Database(dbPath);
 
 // -- TABLES --
 db.serialize(() => {

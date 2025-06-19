@@ -79,19 +79,20 @@ export default function App() {
       }
     } catch {}
   }
-
-  // --- Check line cooldown (per user) ---
-  function checkLineCooldown() {
-    const next = Number(localStorage.getItem('storyline_nextAllowed') || 0);
-    setNextLineAt(next > Date.now() ? next : null);
-    setCanAdd(next <= Date.now());
+  async function fetchLineCooldown() {
+    try {
+      const res = await fetch(`${API_URL}/api/line/cooldown`);
+      const data = await res.json();
+      setLineCooldown(data.cooldown || 0);
+      setCanAdd((data.cooldown || 0) === 0);
+    } catch {}
   }
 
   // --- On mount and on updates, fetch everything ---
   useEffect(() => {
     fetchStory();
     fetchRenameStatus();
-    checkLineCooldown();
+    fetchLineCooldown();
     // Calculate next reset: first of every 3rd month
     const now = new Date();
     let month = now.getMonth() + 1;
@@ -106,13 +107,36 @@ export default function App() {
         nextYear++;
       }
     }
-    const nextReset = new Date(nextYear, nextMonth - 1, 1, 0, 0, 0, 0);
+    function getNextResetDate() {
+      const now = new Date();
+      let month = now.getMonth() + 1;
+      let year = now.getFullYear();
+
+      // The reset months are 3, 6, 9, 12
+      let resetMonth;
+      if (month < 3 || (month === 3 && now.getDate() === 1 && now.getHours() === 0)) {
+        resetMonth = 3;
+      } else if (month < 6 || (month === 6 && now.getDate() === 1 && now.getHours() === 0)) {
+        resetMonth = 6;
+      } else if (month < 9 || (month === 9 && now.getDate() === 1 && now.getHours() === 0)) {
+        resetMonth = 9;
+      } else if (month < 12 || (month === 12 && now.getDate() === 1 && now.getHours() === 0)) {
+        resetMonth = 12;
+      } else {
+        // Jump to next March of next year
+        resetMonth = 3;
+        year++;
+      }
+      return new Date(year, resetMonth - 1, 1, 0, 0, 0, 0);
+    }
+
+    const nextReset = getNextResetDate();
     setNextResetAt(nextReset.getTime());
 
     const interval = setInterval(() => {
       fetchStory();
       fetchRenameStatus();
-      checkLineCooldown();
+      fetchLineCooldown();
     }, 60000); // refresh every minute
     return () => clearInterval(interval);
   }, []);
@@ -195,7 +219,7 @@ export default function App() {
       setSuccess('Line added!');
       setText('');
       fetchStory();
-      checkLineCooldown();
+      fetchLineCooldown();
       setCanAdd(true);
     } catch (err) {
       setError(err.message);
