@@ -1,21 +1,32 @@
 import React, { useEffect, useState } from 'react';
+// You can replace these with your actual SVG icons
+const SunSVG = () => <span style={{ fontSize: 24 }}>☀️</span>;
+const MoonSVG = () => <span style={{ fontSize: 24 }}>🌑</span>;
 const API_URL = process.env.REACT_APP_API_URL;
 
-// Utility: format seconds as DD:HH:MM:SS
-function formatCountdown(secs) {
-  if (secs <= 0 || isNaN(secs)) return 'Ready!';
-  const d = Math.floor(secs / 86400);
+// Utility: format seconds as DD:HH:MM:SS or M:DD:HH:MM
+function formatCountdown(secs, showMonths) {
+  if (!secs || secs <= 0) return 'Ready!';
+  const m = showMonths ? Math.floor(secs / 2592000) : 0;
+  const d = showMonths ? Math.floor((secs % 2592000) / 86400) : Math.floor(secs / 86400);
   const h = Math.floor((secs % 86400) / 3600);
-  const m = Math.floor((secs % 3600) / 60);
+  const mi = Math.floor((secs % 3600) / 60);
   const s = secs % 60;
-  return (d ? d.toString().padStart(2, '0') + ':' : '') +
+  return (showMonths ? `${m}:` : '') +
+    (showMonths ? d.toString().padStart(2, '0') : d ? d.toString().padStart(2, '0') + ':' : '') +
     h.toString().padStart(2, '0') + ':' +
-    m.toString().padStart(2, '0') + ':' +
+    mi.toString().padStart(2, '0') + ':' +
     s.toString().padStart(2, '0');
 }
 
 export default function App() {
-  // Main story state
+  // --- Dark/Light Mode ---
+  const [darkMode, setDarkMode] = useState(true);
+  function toggleDarkMode() {
+    setDarkMode(m => !m);
+  }
+
+  // --- State as before ---
   const [story, setStory] = useState(null);
   const [lines, setLines] = useState([]);
   const [username, setUsername] = useState(localStorage.getItem('storyline_user') || '');
@@ -31,10 +42,12 @@ export default function App() {
   const [titleCooldown, setTitleCooldown] = useState(0);
   const [lineCooldown, setLineCooldown] = useState(0);
 
+  // For reset
+  const [nextResetAt, setNextResetAt] = useState(null);
+  const [resetCountdown, setResetCountdown] = useState(0);
+
   // Used for displaying who renamed last
   const [lastRenamer, setLastRenamer] = useState('');
-
-  // Store cooldown times as JS timestamps
   const [nextRenameAt, setNextRenameAt] = useState(null);
   const [nextLineAt, setNextLineAt] = useState(null);
 
@@ -80,6 +93,18 @@ export default function App() {
     fetchStory();
     fetchRenameStatus();
     checkLineCooldown();
+    // Calculate next reset: first of every 3rd month
+    const now = new Date();
+    let month = now.getMonth() + 1;
+    let year = now.getFullYear();
+    let nextMonth = month + (3 - (month - 1) % 3);
+    let nextYear = year;
+    if (nextMonth > 12) {
+      nextMonth -= 12;
+      nextYear++;
+    }
+    const nextReset = new Date(nextYear, nextMonth - 1, 1, 0, 0, 0, 0);
+    setNextResetAt(nextReset.getTime());
     const interval = setInterval(() => {
       fetchStory();
       fetchRenameStatus();
@@ -98,9 +123,12 @@ export default function App() {
         nextLineAt ? Math.max(0, Math.floor((nextLineAt - Date.now()) / 1000)) : 0
       );
       setCanAdd(!nextLineAt || Date.now() >= nextLineAt);
+      setResetCountdown(
+        nextResetAt ? Math.max(0, Math.floor((nextResetAt - Date.now()) / 1000)) : 0
+      );
     }, 1000);
     return () => clearInterval(interval);
-  }, [nextRenameAt, nextLineAt]);
+  }, [nextRenameAt, nextLineAt, nextResetAt]);
 
   // --- Handle rename ---
   async function handleRename() {
@@ -179,59 +207,87 @@ export default function App() {
 
   // --- Render ---
   return (
-    <div style={{
-      display: 'flex',
+    <div className={`app ${darkMode ? 'dark' : 'light'}`} style={{
       minHeight: '100vh',
-      background: '#1a1b21',
-      fontFamily: 'system-ui, sans-serif'
+      background: darkMode ? '#232327' : '#f3f3f6',
+      color: darkMode ? '#e7e7ea' : '#111',
+      transition: 'background .3s, color .3s'
     }}>
-      {/* Left Cooldown Sidebar */}
-      <div style={{
-        width: 270,
-        minHeight: 310,
-        margin: 'auto 0 auto 3vw',
-        borderRadius: 10,
-        background: '#22232a',
-        color: '#eee',
-        boxShadow: '0 0 14px #10101d77',
-        padding: 22,
-        fontSize: 16,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center'
+      {/* Header */}
+      <header style={{
+        width: '100vw', display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', padding: '0 3vw', height: 70,
+        borderBottom: darkMode ? '1px solid #333' : '1px solid #ddd',
+        background: darkMode ? '#202023' : '#fff',
+        position: 'sticky', top: 0, zIndex: 10,
+        boxShadow: '0 2px 12px #0002'
       }}>
-        <div style={{ fontWeight: 500, marginBottom: 8 }}>Title cooldown:</div>
-        <div style={{ fontFamily: 'monospace', fontSize: 20, marginBottom: 15 }}>
-          {formatCountdown(titleCooldown)}
-        </div>
-        <div style={{ color: '#bbb', fontSize: 14, marginBottom: 22 }}>
-          {lastRenamer ? `Last renamed by: ${lastRenamer}` : ''}
-        </div>
-        <div style={{ fontWeight: 500, marginBottom: 8 }}>Your new line cooldown:</div>
-        <div style={{ fontFamily: 'monospace', fontSize: 20 }}>
-          {formatCountdown(lineCooldown)}
-        </div>
-      </div>
-
-      {/* Main Story Card */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
+        <div style={{ width: 52 }} />
         <div style={{
-          width: 520,
-          background: '#fff',
-          borderRadius: 15,
-          boxShadow: '0 0 18px #1111',
-          padding: 34,
-          minHeight: 370,
-          margin: 'auto'
+          textAlign: 'center', fontWeight: 700, fontSize: 30, letterSpacing: 1
         }}>
-          {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
+          Storyline
+        </div>
+        <div>
+          <button
+            onClick={toggleDarkMode}
+            style={{
+              border: 'none', background: 'none', cursor: 'pointer',
+              padding: 0, marginRight: 3
+            }}
+            title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {darkMode ? <MoonSVG /> : <SunSVG />}
+          </button>
+        </div>
+      </header>
+
+      {/* Main content: Three columns */}
+      <main style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        gap: '3vw',
+        margin: '60px 0 0 0'
+      }}>
+        {/* Cooldown/Info panel (left) */}
+        <div style={{
+          minWidth: 260, maxWidth: 330, minHeight: 330,
+          background: darkMode ? '#1e1f22' : '#eaeaec',
+          borderRadius: 14, boxShadow: darkMode ? '0 0 18px #1117' : '0 0 10px #ccc5',
+          padding: 28, marginTop: 8,
+          display: 'flex', flexDirection: 'column', alignItems: 'flex-start'
+        }}>
+          <div style={{ fontWeight: 500, fontSize: 17, marginBottom: 5 }}>Title cooldown:</div>
+          <div style={{ fontFamily: 'monospace', fontSize: 20, marginBottom: 14 }}>
+            {formatCountdown(titleCooldown)}
+          </div>
+          <div style={{ fontWeight: 500, fontSize: 17, marginBottom: 5 }}>Your new line cooldown:</div>
+          <div style={{ fontFamily: 'monospace', fontSize: 20, marginBottom: 20 }}>
+            {formatCountdown(lineCooldown, false)}
+          </div>
+          <div style={{ fontWeight: 700, fontSize: 17, marginBottom: 3 }}>NEXT RESET:</div>
+          <div style={{ color: '#ed3131', fontWeight: 800, fontSize: 18 }}>
+            {nextResetAt && (new Date(nextResetAt)).toLocaleDateString()}
+          </div>
+          <div style={{ color: '#ed3131', fontWeight: 600, fontSize: 16, marginTop: 3 }}>
+            {formatCountdown(resetCountdown, true)}
+          </div>
+          <div style={{ fontWeight: 600, color: '#ed3131', fontSize: 15, marginTop: 6 }}>
+            (NOTE: Start of every 3rd month)
+          </div>
+        </div>
+
+        {/* Story Card (center) */}
+        <div style={{
+          flex: 1, minWidth: 420, maxWidth: 600, minHeight: 420,
+          background: darkMode ? '#fff' : '#fff',
+          color: '#222', borderRadius: 17,
+          boxShadow: '0 0 24px #0e0e2177',
+          padding: 38, marginTop: 6, marginBottom: 18
+        }}>
+          {/* Header Row */}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 14 }}>
             {editMode ? (
               <>
                 <input
@@ -265,82 +321,108 @@ export default function App() {
               </>
             )}
           </div>
-          <hr style={{ margin: '12px 0' }} />
+          <hr style={{ margin: '10px 0 18px 0' }} />
           {/* Story lines or empty */}
-          <div style={{ minHeight: 80, marginBottom: 19 }}>
+          <div style={{ minHeight: 100, marginBottom: 19 }}>
             {lines.length === 0
               ? <div style={{ color: '#888', fontSize: 19 }}>No lines yet.</div>
               : lines.map(line => (
-                <div key={line.id} style={{ marginBottom: 9, padding: 7, background: '#fafaff', borderRadius: 5 }}>
-                  <span style={{
-                    borderBottom: line.username ? `2px solid ${line.color || '#aaa'}` : 'none',
-                    color: line.color || '#333',
-                    fontWeight: 500
-                  }}>
+                <div key={line.id} style={{
+                  marginBottom: 13, padding: 8,
+                  background: '#fafaff',
+                  borderRadius: 6,
+                  borderBottom: `3px solid ${line.color || '#aaa'}`
+                }}>
+                  <div style={{ color: line.color || '#333', fontWeight: 500 }}>
                     {line.text}
-                  </span>
+                  </div>
                   {line.username && (
-                    <span style={{ fontSize: 13, color: line.color || '#555', marginLeft: 8 }}>
+                    <div style={{ fontSize: 13, color: line.color || '#555', marginTop: 1 }}>
                       [by {line.username}]
-                    </span>
+                    </div>
                   )}
                 </div>
               ))}
           </div>
-          <hr style={{ margin: '11px 0' }} />
-          {/* Input Row */}
-          <form style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 5 }} onSubmit={addLine}>
+          {error && <div style={{ color: 'crimson', marginTop: 10, fontWeight: 600 }}>{error}</div>}
+          {success && <div style={{ color: 'green', marginTop: 10, fontWeight: 600 }}>{success}</div>}
+        </div>
+
+        {/* Add Line Box (right) */}
+        <form style={{
+          minWidth: 270, maxWidth: 330, minHeight: 320,
+          background: darkMode ? '#1e1f22' : '#eaeaec',
+          borderRadius: 15, boxShadow: darkMode ? '0 0 18px #1117' : '0 0 10px #ccc5',
+          marginTop: 8, padding: '20px 16px 28px 16px',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16
+        }} onSubmit={addLine}>
+          <div style={{
+            width: '100%', display: 'flex', alignItems: 'center',
+            justifyContent: 'space-between', marginBottom: 7
+          }}>
             <input
-              placeholder="Your username (optional)"
+              placeholder="Username"
               value={username}
               onChange={e => setUsername(e.target.value)}
               maxLength={20}
-              style={{ padding: 6, borderRadius: 4, border: '1px solid #aaa', width: 135 }}
+              style={{
+                borderRadius: 6, padding: '6px 9px', border: 'none',
+                background: darkMode ? '#22252b' : '#f5f6fb',
+                fontWeight: 600, fontSize: 15, flex: 1, marginRight: 10,
+                outline: '1.5px solid #8882'
+              }}
             />
             <input
               type="color"
               value={color}
               onChange={e => setColor(e.target.value)}
-              style={{ width: 32, height: 32, border: 'none', background: 'none', marginRight: 3 }}
-              title="Choose underline color"
-            />
-            <textarea
-              required
-              placeholder="Add your line..."
-              value={text}
-              onChange={e => setText(e.target.value)}
-              rows={1}
-              maxLength={120}
-              disabled={!canAdd}
               style={{
-                flex: 1,
-                padding: 7,
-                borderRadius: 4,
-                border: '1px solid #aaa',
-                minHeight: 32,
-                maxHeight: 100,
-                resize: 'vertical'
+                width: 28, height: 28, border: 'none', background: 'none',
+                boxShadow: '0 0 6px #2225', borderRadius: 5
               }}
+              title="Underline color"
             />
-            <button
-              type="submit"
-              disabled={!canAdd || !text}
-              style={{
-                padding: '9px 15px', borderRadius: 5, border: 'none',
-                background: canAdd && text ? '#3d86f8' : '#bbb', color: '#fff',
-                fontWeight: 500
-              }}>
-              Add Line
-            </button>
-          </form>
-          {error && <div style={{ color: 'crimson', marginTop: 12, fontWeight: 500 }}>{error}</div>}
-          {success && <div style={{ color: 'green', marginTop: 10, fontWeight: 500 }}>{success}</div>}
-        </div>
-        <div style={{ fontSize: 14, color: '#bbb', textAlign: 'center', marginTop: 13 }}>
-          Story resets every 3 months. All contributions are public. <br />
-          Refreshes automatically every minute.
-        </div>
-      </div>
+          </div>
+          <textarea
+            required
+            placeholder="Add your line..."
+            value={text}
+            onChange={e => setText(e.target.value)}
+            rows={3}
+            maxLength={140}
+            disabled={!canAdd}
+            style={{
+              width: '100%', minHeight: 72, maxHeight: 160, resize: 'vertical',
+              borderRadius: 10, border: 'none', background: darkMode ? '#1b1a1e' : '#f9f9fa',
+              padding: 12, fontSize: 16, marginBottom: 8, boxShadow: '0 1px 8px #0002'
+            }}
+          />
+          <button
+            type="submit"
+            disabled={!canAdd || !text}
+            style={{
+              width: '90%', padding: '13px 0', borderRadius: 7, border: 'none',
+              background: canAdd && text ? '#3d86f8' : '#bbb',
+              color: '#fff', fontWeight: 700, fontSize: 17, marginTop: 3,
+              boxShadow: canAdd && text ? '0 2px 10px #3464c420' : 'none'
+            }}>
+            Add Line
+          </button>
+        </form>
+      </main>
+
+      {/* Footer for past stories */}
+      <footer style={{
+        width: '100vw', minHeight: 46,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        marginTop: 55, padding: 10, background: 'transparent',
+        color: darkMode ? '#aaa' : '#555', fontSize: 16,
+        borderTop: darkMode ? '1px solid #28292c' : '1px solid #e2e2e2'
+      }}>
+        {/* TODO: List/archive of past stories here */}
+        Story resets every 3 months. All contributions are public.&nbsp;
+        Refreshes automatically every minute.
+      </footer>
     </div>
   );
 }
