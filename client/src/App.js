@@ -2,19 +2,8 @@ import React, { useEffect, useState } from 'react';
 const API_URL = process.env.REACT_APP_API_URL;
 
 function getRandomColor() {
-  // Simple color generator for usernames
   const colors = ['#C0392B','#2980B9','#27AE60','#8E44AD','#F39C12','#16A085'];
   return colors[Math.floor(Math.random() * colors.length)];
-}
-
-function timeLeft(target) {
-  const now = new Date();
-  const diff = (new Date(target) - now) / 1000;
-  if (diff <= 0) return null;
-  const h = Math.floor(diff / 3600);
-  const m = Math.floor((diff % 3600) / 60);
-  const s = Math.floor(diff % 60);
-  return `${h}h ${m}m ${s}s`;
 }
 
 function App() {
@@ -26,8 +15,14 @@ function App() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [canAdd, setCanAdd] = useState(true);
-  const [cooldown, setCooldown] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Rename states
+  const [editMode, setEditMode] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [renameError, setRenameError] = useState('');
+  const [renameCooldown, setRenameCooldown] = useState(null);
+  const [lastRenamer, setLastRenamer] = useState('');
 
   // Save user credentials
   useEffect(() => {
@@ -53,10 +48,14 @@ function App() {
 
   useEffect(() => { fetchStory(); }, []);
 
-  // Check daily cooldown after posting
-  const checkCooldown = async () => {
-    // Here you might implement a real endpoint `/api/timer` to check, for now check on error response
-  };
+  // Auto-refresh story and rename status every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchStory();
+      fetchRenameStatus();
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Add a new line
   const addLine = async (e) => {
@@ -77,7 +76,6 @@ function App() {
       const data = await res.json();
       if (!res.ok) {
         if (data.error && data.error.includes('limit')) {
-          setCooldown('24h'); // Real implementation: get next eligible time from backend
           setCanAdd(false);
         }
         throw new Error(data.error || 'Failed to add line');
@@ -92,13 +90,64 @@ function App() {
     setTimeout(() => setSuccess(''), 2500);
   };
 
-  // Auto-refresh every minute
-  useEffect(() => {
-    const interval = setInterval(fetchStory, 60000);
-    return () => clearInterval(interval);
-  }, []);
+  // Story rename logic
 
-  // Render
+  // Check story rename cooldown/status
+  const fetchRenameStatus = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/story/rename-status`);
+      const data = await res.json();
+      if (data.nextAllowed) {
+        setRenameCooldown(new Date(data.nextAllowed));
+        setLastRenamer(data.lastRenamer);
+      } else {
+        setRenameCooldown(null);
+        setLastRenamer('');
+      }
+    } catch {
+      setRenameCooldown(null);
+      setLastRenamer('');
+    }
+  };
+  useEffect(() => { fetchRenameStatus(); }, [story]);
+
+  // Handle rename button
+  const handleRename = async () => {
+    setRenameError('');
+    if (!newTitle.trim()) {
+      setRenameError('Title cannot be empty.');
+      return;
+    }
+    try {
+      const res = await fetch(`${API_URL}/api/story/rename`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newTitle.trim(),
+          username
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.nextAllowed) {
+          setRenameCooldown(new Date(data.nextAllowed));
+          setRenameError(
+            `Cooldown active. Next rename: ${new Date(data.nextAllowed).toLocaleString()} (last by ${data.lastRenamer})`
+          );
+        } else {
+          setRenameError(data.error || 'Rename failed.');
+        }
+      } else {
+        setEditMode(false);
+        setNewTitle('');
+        fetchStory();
+        fetchRenameStatus();
+      }
+    } catch {
+      setRenameError('Rename request failed.');
+    }
+  };
+
   return (
     <div style={{
       maxWidth: 600,
@@ -110,9 +159,49 @@ function App() {
       boxShadow: '0 0 12px #ccc',
       minHeight: 500
     }}>
-      <h1>
-        {story ? story.name || 'Untitled Story' : 'Loading Story...'}
-      </h1>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        {editMode ? (
+          <>
+            <input
+              value={newTitle}
+              onChange={e => setNewTitle(e.target.value)}
+              maxLength={40}
+              style={{ fontSize: 28, padding: 4, borderRadius: 6, border: '1px solid #aaa', marginRight: 10 }}
+            />
+            <button onClick={handleRename} style={{ marginRight: 8 }}>Save</button>
+            <button onClick={() => { setEditMode(false); setRenameError(''); }}>Cancel</button>
+          </>
+        ) : (
+          <>
+            <h1 style={{ marginRight: 12 }}>{story ? (story.name || 'Untitled') : 'Loading Story...'}</h1>
+            <button
+              onClick={() => { setEditMode(true); setNewTitle(story ? (story.name || '') : ''); setRenameError(''); }}
+              disabled={renameCooldown && renameCooldown > new Date()}
+              style={{
+                padding: '2px 10px',
+                borderRadius: 4,
+                border: 'none',
+                background: (renameCooldown && renameCooldown > new Date()) ? '#aaa' : '#3d86f8',
+                color: '#fff',
+                cursor: (renameCooldown && renameCooldown > new Date()) ? 'not-allowed' : 'pointer'
+              }}
+              title={renameCooldown && renameCooldown > new Date()
+                ? `Cooldown active. Next rename: ${renameCooldown.toLocaleString()}`
+                : 'Rename Story'}
+            >
+              Rename
+            </button>
+          </>
+        )}
+      </div>
+      {renameError && <div style={{ color: 'crimson', fontSize: 15 }}>{renameError}</div>}
+      {renameCooldown && renameCooldown > new Date() && (
+        <div style={{ color: '#555', fontSize: 13 }}>
+          Next rename: {renameCooldown.toLocaleString()}
+          {lastRenamer && ` (last by ${lastRenamer})`}
+        </div>
+      )}
+
       <hr />
       <div style={{ minHeight: 220 }}>
         {loading
