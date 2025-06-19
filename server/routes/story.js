@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('../db/database');
 const router = express.Router();
 
+// Helper for last rename
 function getLastRename(storyId, cb) {
   db.get(
     "SELECT * FROM story_renames WHERE story_id = ? ORDER BY renamed_at DESC LIMIT 1",
@@ -10,6 +11,7 @@ function getLastRename(storyId, cb) {
   );
 }
 
+// GET /api/story/current -- get current story and all lines
 router.get('/current', (req, res) => {
   db.get("SELECT * FROM stories ORDER BY created_at DESC LIMIT 1", [], (err, story) => {
     if (err || !story) return res.status(404).json({ error: 'No story found' });
@@ -20,6 +22,7 @@ router.get('/current', (req, res) => {
   });
 });
 
+// POST /api/story/rename -- rename story with cooldown
 router.post('/rename', (req, res) => {
   const { name, username } = req.body;
   if (!name || name.length < 2) return res.status(400).json({ error: 'Invalid story name' });
@@ -30,6 +33,7 @@ router.post('/rename', (req, res) => {
     getLastRename(story.id, (err, lastRename) => {
       if (err) return res.status(500).json({ error: err.message });
 
+      // Check cooldown (7 days)
       if (lastRename && lastRename.renamed_at) {
         const lastTime = new Date(lastRename.renamed_at);
         const now = new Date();
@@ -59,6 +63,7 @@ router.post('/rename', (req, res) => {
   });
 });
 
+// GET /api/story/rename-status -- get current rename cooldown info
 router.get('/rename-status', (req, res) => {
   db.get("SELECT * FROM stories ORDER BY created_at DESC LIMIT 1", [], (err, story) => {
     if (err || !story) return res.status(404).json({ error: 'No story found' });

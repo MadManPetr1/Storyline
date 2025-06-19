@@ -9,8 +9,11 @@ function isAdmin(req) {
 
 router.delete('/line/:id', (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
-  db.run("DELETE FROM lines WHERE id = ?", [req.params.id], function (err) {
+
+  const lineId = req.params.id;
+  db.run("DELETE FROM lines WHERE id = ?", [lineId], function(err) {
     if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(404).json({ error: 'Line not found' });
     res.json({ success: true });
   });
 });
