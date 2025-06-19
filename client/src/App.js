@@ -1,32 +1,33 @@
 import React, { useEffect, useState } from 'react';
-// You can replace these with your actual SVG icons
+import './App.css';
+// Replace with your actual SVGs if desired
 const SunSVG = () => <span style={{ fontSize: 24 }}>☀️</span>;
 const MoonSVG = () => <span style={{ fontSize: 24 }}>🌑</span>;
 const API_URL = process.env.REACT_APP_API_URL;
 
 // Utility: format seconds as DD:HH:MM:SS or M:DD:HH:MM
-function formatCountdown(secs, showMonths) {
+function formatCountdown(secs) {
   if (!secs || secs <= 0) return 'Ready!';
-  const m = showMonths ? Math.floor(secs / 2592000) : 0;
-  const d = showMonths ? Math.floor((secs % 2592000) / 86400) : Math.floor(secs / 86400);
+  const d = Math.floor(secs / 86400);
   const h = Math.floor((secs % 86400) / 3600);
-  const mi = Math.floor((secs % 3600) / 60);
+  const m = Math.floor((secs % 3600) / 60);
   const s = secs % 60;
-  return (showMonths ? `${m}:` : '') +
-    (showMonths ? d.toString().padStart(2, '0') : d ? d.toString().padStart(2, '0') + ':' : '') +
+  return (
+    d.toString().padStart(2, '0') + ':' +
     h.toString().padStart(2, '0') + ':' +
-    mi.toString().padStart(2, '0') + ':' +
-    s.toString().padStart(2, '0');
+    m.toString().padStart(2, '0')
+    // + ':' + s.toString().padStart(2, '0') // add seconds if you want
+  );
 }
 
 export default function App() {
-  // --- Dark/Light Mode ---
+  // Dark/Light mode
   const [darkMode, setDarkMode] = useState(true);
   function toggleDarkMode() {
     setDarkMode(m => !m);
   }
 
-  // --- State as before ---
+  // State
   const [story, setStory] = useState(null);
   const [lines, setLines] = useState([]);
   const [username, setUsername] = useState(localStorage.getItem('storyline_user') || '');
@@ -41,39 +42,13 @@ export default function App() {
   // Cooldowns
   const [titleCooldown, setTitleCooldown] = useState(0);
   const [lineCooldown, setLineCooldown] = useState(0);
-
-  // For reset
   const [nextResetAt, setNextResetAt] = useState(null);
   const [resetCountdown, setResetCountdown] = useState(0);
 
-  // Used for displaying who renamed last
+  // For showing who renamed last
   const [lastRenamer, setLastRenamer] = useState('');
   const [nextRenameAt, setNextRenameAt] = useState(null);
   const [nextLineAt, setNextLineAt] = useState(null);
-
-  const theme = darkMode
-  ? {
-      bg: '#232327',
-      cardBg: '#1e1f22',
-      text: '#e7e7ea',
-      cardText: '#eee',
-      lineBg: '#191a1e',
-      inputBg: '#22252b',
-      border: '#333',
-      footer: '#aaa',
-      accent: '#ed3131'
-    }
-  : {
-      bg: '#f3f3f6',
-      cardBg: '#fff',
-      text: '#111',
-      cardText: '#222',
-      lineBg: '#f9f9fa',
-      inputBg: '#f5f6fb',
-      border: '#ddd',
-      footer: '#555',
-      accent: '#ed3131'
-    };
 
   // --- Fetch story and lines ---
   async function fetchStory() {
@@ -121,14 +96,19 @@ export default function App() {
     const now = new Date();
     let month = now.getMonth() + 1;
     let year = now.getFullYear();
-    let nextMonth = month + (3 - (month - 1) % 3);
+    let nextMonth = month;
     let nextYear = year;
-    if (nextMonth > 12) {
-      nextMonth -= 12;
-      nextYear++;
+    if ((month - 1) % 3 !== 0 || now.getDate() > 1) {
+      // If today is not a reset month, or it's past the first day, go to next reset month
+      nextMonth += (3 - (month - 1) % 3);
+      if (nextMonth > 12) {
+        nextMonth -= 12;
+        nextYear++;
+      }
     }
     const nextReset = new Date(nextYear, nextMonth - 1, 1, 0, 0, 0, 0);
     setNextResetAt(nextReset.getTime());
+
     const interval = setInterval(() => {
       fetchStory();
       fetchRenameStatus();
@@ -229,60 +209,27 @@ export default function App() {
     localStorage.setItem('storyline_color', color);
   }, [username, color]);
 
-  // --- Render ---
+  // --- RENDER ---
   return (
-    <div className="app" style={{
-      minHeight: '100vh',
-      background: theme.bg,
-      color: theme.text,
-      transition: 'background .3s, color .3s'
-    }}>
+    <div className={`app ${darkMode ? 'dark' : 'light'}`}>
       {/* Header */}
-      <header style={{
-        width: '100vw', display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between', padding: '0 3vw', height: 70,
-        borderBottom: `1px solid ${theme.border}`,
-        background: theme.bg,
-        position: 'sticky', top: 0, zIndex: 10,
-        boxShadow: darkMode ? '0 2px 12px #0002' : '0 2px 12px #aaa2'
-      }}>
+      <header className="header">
         <div style={{ width: 52 }} />
-        <div style={{
-          flex: 1, textAlign: 'center', fontWeight: 700, fontSize: 30, letterSpacing: 1
-        }}>
-          Storyline
-        </div>
+        <div className="header-title">Storyline</div>
         <div style={{ width: 52, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
           <button
             onClick={toggleDarkMode}
-            style={{
-              border: 'none', background: 'none', cursor: 'pointer',
-              padding: 0, marginRight: 0
-            }}
+            style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0 }}
             title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {darkMode ? <MoonSVG /> : <SunSVG />}
           </button>
         </div>
       </header>
-          
-      {/* Main content: Three columns */}
-      <main style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        gap: '3vw',
-        margin: '60px 0 0 0'
-      }}>
-        {/* Cooldown/Info panel (left) */}
-        <div style={{
-          minWidth: 260, maxWidth: 330, minHeight: 330,
-          background: theme.cardBg,
-          color: theme.cardText,
-          borderRadius: 14, boxShadow: darkMode ? '0 0 18px #1117' : '0 0 10px #ccc5',
-          padding: 28, marginTop: 8,
-          display: 'flex', flexDirection: 'column', alignItems: 'flex-start'
-        }}>
+
+      <main className="main-columns">
+        {/* Left Cooldown Panel */}
+        <div className="panel">
           <div style={{ fontWeight: 500, fontSize: 17, marginBottom: 5 }}>Title cooldown:</div>
           <div style={{ fontFamily: 'monospace', fontSize: 20, marginBottom: 14 }}>
             {formatCountdown(titleCooldown)}
@@ -292,27 +239,19 @@ export default function App() {
             {formatCountdown(lineCooldown, false)}
           </div>
           <div style={{ fontWeight: 700, fontSize: 17, marginBottom: 3 }}>NEXT RESET:</div>
-          <div style={{ color: theme.accent, fontWeight: 800, fontSize: 18 }}>
+          <div style={{ color: '#ed3131', fontWeight: 800, fontSize: 18 }}>
             {nextResetAt && (new Date(nextResetAt)).toLocaleDateString()}
           </div>
-          <div style={{ color: theme.accent, fontWeight: 600, fontSize: 16, marginTop: 3 }}>
+          <div style={{ color: '#ed3131', fontWeight: 600, fontSize: 16, marginTop: 3 }}>
             {formatCountdown(resetCountdown, true)}
           </div>
-          <div style={{ fontWeight: 600, color: theme.accent, fontSize: 15, marginTop: 6 }}>
+          <div style={{ fontWeight: 600, color: '#ed3131', fontSize: 15, marginTop: 6 }}>
             (NOTE: Start of every 3rd month)
           </div>
         </div>
-      
-        {/* Story Card (center) */}
-        <div style={{
-          flex: 1, minWidth: 420, maxWidth: 600, minHeight: 420,
-          background: theme.cardBg,
-          color: theme.cardText,
-          borderRadius: 17,
-          boxShadow: darkMode ? '0 0 24px #0e0e2177' : '0 0 24px #aaa8',
-          padding: 38, marginTop: 6, marginBottom: 18
-        }}>
-          {/* Header Row */}
+
+        {/* Center Story Card */}
+        <div className="story-card">
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 14 }}>
             {editMode ? (
               <>
@@ -322,8 +261,7 @@ export default function App() {
                   maxLength={38}
                   style={{
                     fontSize: 25, padding: 4, borderRadius: 5,
-                    border: `1px solid ${theme.border}`, marginRight: 12,
-                    background: theme.inputBg, color: theme.text
+                    border: '1px solid #888', marginRight: 12
                   }}
                 />
                 <button onClick={handleRename} style={{
@@ -351,23 +289,21 @@ export default function App() {
               </>
             )}
           </div>
-          <hr style={{ margin: '10px 0 18px 0', borderColor: theme.border }} />
-          {/* Story lines or empty */}
+          <hr style={{ margin: '10px 0 18px 0' }} />
           <div style={{ minHeight: 100, marginBottom: 19 }}>
             {lines.length === 0
               ? <div style={{ color: '#888', fontSize: 19 }}>No lines yet.</div>
               : lines.map(line => (
-                <div key={line.id} style={{
-                  marginBottom: 13, padding: 8,
-                  background: theme.lineBg,
-                  borderRadius: 6,
-                  borderBottom: `3px solid ${line.color || '#aaa'}`
-                }}>
-                  <div style={{ color: line.color || theme.cardText, fontWeight: 500 }}>
+                <div key={line.id}
+                  className="story-line"
+                  style={{
+                    borderBottom: `3px solid ${line.color || '#aaa'}`
+                  }}>
+                  <div style={{ color: line.color || '#333', fontWeight: 500 }}>
                     {line.text}
                   </div>
                   {line.username && (
-                    <div style={{ fontSize: 13, color: line.color || theme.cardText, marginTop: 1 }}>
+                    <div className="username" style={{ color: line.color || '#555' }}>
                       [by {line.username}]
                     </div>
                   )}
@@ -377,45 +313,29 @@ export default function App() {
           {error && <div style={{ color: 'crimson', marginTop: 10, fontWeight: 600 }}>{error}</div>}
           {success && <div style={{ color: 'green', marginTop: 10, fontWeight: 600 }}>{success}</div>}
         </div>
-            
-        {/* Add Line Box (right) */}
-        <form style={{
-          minWidth: 270, maxWidth: 330, minHeight: 320,
-          background: theme.cardBg,
-          color: theme.cardText,
-          borderRadius: 15, boxShadow: darkMode ? '0 0 18px #1117' : '0 0 10px #ccc5',
-          marginTop: 8, padding: '20px 16px 28px 16px',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16
-        }} onSubmit={addLine}>
+
+        {/* Right Add Line Box */}
+        <form className="add-panel" onSubmit={addLine}>
           <div style={{
             width: '100%', display: 'flex', alignItems: 'center',
             justifyContent: 'space-between', marginBottom: 7
           }}>
             <input
+              className="username-input"
               placeholder="Username"
               value={username}
               onChange={e => setUsername(e.target.value)}
               maxLength={20}
-              style={{
-                borderRadius: 6, padding: '6px 9px', border: 'none',
-                background: theme.inputBg,
-                color: theme.text,
-                fontWeight: 600, fontSize: 15, flex: 1, marginRight: 10,
-                outline: `1.5px solid ${theme.border}22`
-              }}
             />
             <input
+              className="color-picker"
               type="color"
               value={color}
               onChange={e => setColor(e.target.value)}
-              style={{
-                width: 28, height: 28, border: 'none', background: 'none',
-                boxShadow: '0 0 6px #2225', borderRadius: 5
-              }}
-              title="Underline color"
             />
           </div>
           <textarea
+            className="line-textarea"
             required
             placeholder="Add your line..."
             value={text}
@@ -423,37 +343,14 @@ export default function App() {
             rows={3}
             maxLength={140}
             disabled={!canAdd}
-            style={{
-              width: '100%', minHeight: 72, maxHeight: 160, resize: 'vertical',
-              borderRadius: 10, border: 'none',
-              background: theme.inputBg,
-              color: theme.text,
-              padding: 12, fontSize: 16, marginBottom: 8, boxShadow: '0 1px 8px #0002'
-            }}
           />
-          <button
-            type="submit"
-            disabled={!canAdd || !text}
-            style={{
-              width: '90%', padding: '13px 0', borderRadius: 7, border: 'none',
-              background: canAdd && text ? '#3d86f8' : '#bbb',
-              color: '#fff', fontWeight: 700, fontSize: 17, marginTop: 3,
-              boxShadow: canAdd && text ? '0 2px 10px #3464c420' : 'none'
-            }}>
+          <button className="add-line-btn" type="submit" disabled={!canAdd || !text}>
             Add Line
           </button>
         </form>
       </main>
-          
-      {/* Footer for past stories */}
-      <footer style={{
-        width: '100vw', minHeight: 46,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        marginTop: 55, padding: 10, background: 'transparent',
-        color: theme.footer, fontSize: 16,
-        borderTop: `1px solid ${theme.border}`
-      }}>
-        {/* TODO: List/archive of past stories here */}
+
+      <footer className="footer">
         Story resets every 3 months. All contributions are public.&nbsp;
         Refreshes automatically every minute.
       </footer>
