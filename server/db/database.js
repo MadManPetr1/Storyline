@@ -24,4 +24,16 @@ db.serialize(() => {
   `);
 });
 
+db.get("SELECT COUNT(*) as cnt FROM stories", (err, row) => {
+  if (!err && row.cnt === 0) {
+    db.run("INSERT INTO stories (name) VALUES (?)", ["Untitled"], (err) => {
+      if (err) {
+        console.error("Failed to insert default blank story:", err.message);
+      } else {
+        console.log("Inserted default blank story.");
+      }
+    });
+  }
+});
+
 module.exports = db;
