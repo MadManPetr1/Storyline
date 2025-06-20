@@ -4,8 +4,8 @@ import "./Header.css";
 
 import LogoLight from "../assets/lightmode/Storyline_lightmode.svg";
 import LogoDark from "../assets/darkmode/Storyline_darkmode.svg";
-import ToggleToDark from "../assets/lightmode/todarkmode.svg";
-import ToggleToLight from "../assets/darkmode/tolightmode.svg";
+import ToggleToDark from "../assets/lightmode/toLightmode.svg";
+import ToggleToLight from "../assets/darkmode/toDarkmode.svg";
 
 export default function Header({ darkMode, toggleDarkMode }) {
   return (
