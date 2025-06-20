@@ -256,9 +256,6 @@ button, .add-line-btn {
   box-shadow: 0 1px 8px #3d86f820;
   transform: translateY(-1px) scale(1.01);
 }
-.app.dark .story-line:hover {
-  background: #232334;
-}
 .story-line .username {
   font-size: 13px;
   margin-top: 1px;

@@ -340,7 +340,7 @@ export default function MainApp() {
             value={text}
             onChange={e => setText(e.target.value)}
             rows={3}
-            maxLength={140}
+            maxLength={512}
             disabled={!canAdd}
           />
           <button className="add-line-btn" type="submit" disabled={!canAdd || !text}>
