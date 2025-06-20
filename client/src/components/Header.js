@@ -1,30 +1,28 @@
+// src/components/Header.js
 import React from "react";
 import "./Header.css";
 
 export default function Header({ darkMode, toggleDarkMode }) {
-  const logoSrc = darkMode
-    ? "/assets/darkmode/Storyline_darkmode.svg"
-    : "/assets/lightmode/Storyline_lightmode.svg";
-
-  const toggleIconSrc = darkMode
-    ? "/assets/darkmode/toLightmode.svg"
-    : "/assets/lightmode/toDarkmode.svg";
-
   return (
     <header className="header">
-      <img
-        src={logoSrc}
-        alt="Logo"
-        className="logo"
-      />
-      <button className="theme-toggle-btn" onClick={toggleDarkMode}>
+      <div className="header-inner">
         <img
-          src={toggleIconSrc}
-          alt="Switch Theme"
-          width={60}
-          height={60}
+          src={darkMode
+            ? "/assets/darkmode/Storyline_darkmode_1000x500.png"
+            : "/assets/lightmode/Storyline_lightmode_1000x500.png"}
+          alt="Storyline Logo"
+          className="logo"
         />
-      </button>
+        <button className="theme-toggle-btn" onClick={toggleDarkMode}>
+          <img
+            src={darkMode
+              ? "/assets/darkmode/toDarkmode.svg"
+              : "/assets/lightmode/toLightmode.svg"}
+            alt="Toggle Theme"
+            className="toggle-icon"
+          />
+        </button>
+      </div>
     </header>
   );
 }

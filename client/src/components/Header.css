@@ -1,37 +1,49 @@
-/* components/Header.css */
-
 .header {
-  width: 100%;
-  height: 75px;
-  background-color: var(--header-bg);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease;
-  z-index: 100;
+  height: 75px;
+  padding: 0px;
+  background-color: var(--bg-color);
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
 }
 
 .logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   height: 75px;
-  width: 150px;
   object-fit: contain;
+  transition: opacity 0.3s ease;
 }
 
 .theme-toggle-btn {
-  height: 75px;
-  width: 75px;
-  padding: 0;
   background: none;
   border: none;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: filter 0.2s ease;
+  padding: 12.5px;
+  transition: background 0.2s ease, transform 0.2s ease;
+  z-index: 2;
 }
 
-.theme-toggle-btn:hover {
-  filter: brightness(1.1);
+.toggle-icon {
+  width: 50px;
+  height: 50px;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.toggle-icon:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 4px var(--glow-color));
 }
