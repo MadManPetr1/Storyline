@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
+
 import Header from "./components/Header";
+import CooldownPanel from "./components/CooldownPanel";
 
 const SunSVG = () => <span style={{ fontSize: 24 }}>☀️</span>;
 const MoonSVG = () => <span style={{ fontSize: 24 }}>🌑</span>;
@@ -217,24 +219,12 @@ export default function MainApp() {
 
       <main className="main-columns">
         {/* Left Cooldown Panel */}
-        <div className="panel cooldown-panel">
-          <div className="cooldown-label">Title cooldown:</div>
-          <div className="cooldown-value">{formatCountdown(titleCooldown)}</div>
-
-          <div className="cooldown-label">Your new line cooldown:</div>
-          <div className="cooldown-value">{formatCountdown(lineCooldown, false)}</div>
-
-          <div className="cooldown-label bold">NEXT RESET:</div>
-          <div className="reset-date">
-            {nextResetAt && new Date(nextResetAt).toLocaleDateString()}
-          </div>
-          <div className="reset-countdown">
-            {formatCountdown(resetCountdown, true)}
-          </div>
-          <div className="reset-note">
-            (NOTE: Start of every 3rd month)
-          </div>
-        </div>
+        <CooldownPanel
+          titleCooldown={titleCooldown}
+          lineCooldown={lineCooldown}
+          nextResetAt={nextResetAt}
+          resetCountdown={resetCountdown}
+        />
 
         {/* Center Story Card */}
         <div className="story-card">

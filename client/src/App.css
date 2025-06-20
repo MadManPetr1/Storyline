@@ -415,3 +415,21 @@ button, .add-line-btn {
   --border-color: #333333;
   --glow-color: #f5f5f5;
 }
+:root {
+  --panel-bg: #f5f5f5;
+  --panel-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+  --text-primary: #222;
+  --text-secondary: #666;
+  --border-color: #dddddd;
+  --highlight-color: #e53935;
+}
+
+.dark {
+  --panel-bg: #202020;
+  --panel-shadow: 0 0 14px rgba(0, 0, 0, 0.4);
+  --text-primary: #fff;
+  --text-secondary: #aaa;
+  --border-color: #444;
+  --highlight-color: #ff5c5c;
+}
+
