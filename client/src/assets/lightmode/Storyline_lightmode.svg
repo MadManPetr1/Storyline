@@ -1,0 +1,20 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<!-- Created using Krita: https://krita.org -->
+<svg xmlns="http://www.w3.org/2000/svg" 
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:krita="http://krita.org/namespaces/svg/krita"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    width="240pt"
+    height="240pt"
+    viewBox="0 0 240 240">
+<defs>
+  <linearGradient id="gradient0" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="1.4142135623731" y2="0" spreadMethod="pad">
+   <stop stop-color="#067efe" offset="0" stop-opacity="1"/>
+   <stop stop-color="#0066cc" offset="1" stop-opacity="1"/>
+  </linearGradient>
+ </defs>
+<g id="group0" transform="translate(15.7316797523298, 83.4898781905545)" fill="none"><text id="shape0" krita:useRichText="false" text-rendering="auto" krita:textVersion="3" transform="translate(0, 51.79875)" fill="#000000" stroke-opacity="0" stroke="#000000" stroke-width="0" stroke-linecap="square" stroke-linejoin="bevel" letter-spacing="0.5" style="text-align: start;text-align-last: auto;font-family: Montserrat,Inter,Segoe UI,Arial,sans-serif;font-size: 48;font-weight: 700;"><tspan x="0">Story</tspan></text><text id="shape01" krita:useRichText="false" text-rendering="auto" krita:textVersion="3" transform="translate(122.846238625945, 51.79875)" fill="#067efe" stroke-opacity="0" stroke="#000000" stroke-width="0" stroke-linecap="square" stroke-linejoin="bevel" letter-spacing="0.5" style="text-align: start;text-align-last: auto;font-family: Montserrat,Inter,Segoe UI,Arial,sans-serif;font-size: 48;font-weight: 700;"><tspan x="0">line</tspan></text>
+  <path id="shape02" transform="matrix(0.999995240826041 0 0 0.951229756915541 64.4478404953404 56.700243618891)" fill="url(#gradient0)" fill-rule="evenodd" stroke-opacity="0" stroke="#000000" stroke-width="0" stroke-linecap="square" stroke-linejoin="bevel" d="M8.58895 8.97096C31.9136 5.31999 48.5825 3.11202 58.5956 2.34705C68.6088 1.58209 85.1598 0.799737 108.249 0L125.141 0.436087L128.452 0.521567C137.954 0.799737 143.059 1.66902 143.766 3.1294C144.473 4.58979 144.021 5.89371 142.411 7.04116C140.958 8.15384 137.15 8.69279 130.985 8.65802C124.82 8.62325 118.458 8.83188 111.901 9.2839C97.8824 10.327 90.1468 11.0398 88.6939 11.4223C87.241 11.8048 85.5329 11.9961 83.5695 11.9961C75.3627 13.8737 70.9451 14.9864 70.3169 15.3341C69.3745 15.8557 71.0237 14.9168 69.3745 15.8557C67.7252 16.7945 66.7828 17.629 66.076 16.8466C65.6048 16.3251 66.5865 15.4384 69.0211 14.1866L74.8522 12.0482L84.0996 9.49253L94.1717 7.66704L106.07 6.31097L118.026 5.21567C118.537 5.35476 118.537 5.35476 118.026 5.21567C117.516 5.07659 112.925 4.75359 104.244 4.43332C102.489 4.36859 99.5636 4.28166 95.4675 4.17254L75.5001 5.11136L59.6559 5.99803L40.6898 8.24077L20.428 11.0051L6.70413 12.8306C3.01302 13.3174 0.853327 13.2478 0.225053 12.6219C-0.403221 11.9961 0.283954 11.1963 2.28658 10.2227L6.58633 9.17959C6.58633 9.17959 7.25387 9.11004 8.58895 8.97096Z" sodipodi:nodetypes="czccczczczczzzccccccsscccccczccc"/>
+ </g>
+</svg>

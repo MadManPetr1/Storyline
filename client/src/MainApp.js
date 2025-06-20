@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import './App.css'; // Make sure your CSS is set up as discussed
+import './App.css';
+import Header from "./components/Header";
 
 const SunSVG = () => <span style={{ fontSize: 24 }}>☀️</span>;
 const MoonSVG = () => <span style={{ fontSize: 24 }}>🌑</span>;
@@ -212,19 +213,7 @@ export default function MainApp() {
   return (
     <div className={`app ${darkMode ? 'dark' : 'light'}`}>
       {/* Header */}
-      <header className="header">
-        <div style={{ width: 52 }} />
-        <div className="header-title">Storyline</div>
-        <div style={{ width: 52, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-          <button
-            onClick={toggleDarkMode}
-            style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0 }}
-            title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {darkMode ? <MoonSVG /> : <SunSVG />}
-          </button>
-        </div>
-      </header>
+      <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
 
       <main className="main-columns">
         {/* Left Cooldown Panel */}
