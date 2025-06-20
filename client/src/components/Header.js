@@ -1,23 +1,25 @@
-// components/Header.js
 import React from "react";
 import "./Header.css";
 
-import LogoLight from "../assets/lightmode/Storyline_lightmode.svg";
-import LogoDark from "../assets/darkmode/Storyline_darkmode.svg";
-import ToggleToDark from "../assets/lightmode/toLightmode.svg";
-import ToggleToLight from "../assets/darkmode/toDarkmode.svg";
-
 export default function Header({ darkMode, toggleDarkMode }) {
+  const logoSrc = darkMode
+    ? "/assets/darkmode/Storyline_darkmode.svg"
+    : "/assets/lightmode/Storyline_lightmode.svg";
+
+  const toggleIconSrc = darkMode
+    ? "/assets/darkmode/toLightmode.svg"
+    : "/assets/lightmode/toDarkmode.svg";
+
   return (
     <header className="header">
       <img
-        src={darkMode ? LogoDark : LogoLight}
-        alt="Storyline"
+        src={logoSrc}
+        alt="Logo"
         className="logo"
       />
       <button className="theme-toggle-btn" onClick={toggleDarkMode}>
         <img
-          src={darkMode ? ToggleToLight : ToggleToDark}
+          src={toggleIconSrc}
           alt="Switch Theme"
           width={60}
           height={60}

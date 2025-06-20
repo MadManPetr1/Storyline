@@ -217,23 +217,21 @@ export default function MainApp() {
 
       <main className="main-columns">
         {/* Left Cooldown Panel */}
-        <div className="panel">
-          <div style={{ fontWeight: 500, fontSize: 17, marginBottom: 5 }}>Title cooldown:</div>
-          <div style={{ fontFamily: 'monospace', fontSize: 20, marginBottom: 14 }}>
-            {formatCountdown(titleCooldown)}
+        <div className="panel cooldown-panel">
+          <div className="cooldown-label">Title cooldown:</div>
+          <div className="cooldown-value">{formatCountdown(titleCooldown)}</div>
+
+          <div className="cooldown-label">Your new line cooldown:</div>
+          <div className="cooldown-value">{formatCountdown(lineCooldown, false)}</div>
+
+          <div className="cooldown-label bold">NEXT RESET:</div>
+          <div className="reset-date">
+            {nextResetAt && new Date(nextResetAt).toLocaleDateString()}
           </div>
-          <div style={{ fontWeight: 500, fontSize: 17, marginBottom: 5 }}>Your new line cooldown:</div>
-          <div style={{ fontFamily: 'monospace', fontSize: 20, marginBottom: 20 }}>
-            {formatCountdown(lineCooldown, false)}
-          </div>
-          <div style={{ fontWeight: 700, fontSize: 17, marginBottom: 3 }}>NEXT RESET:</div>
-          <div style={{ color: '#ed3131', fontWeight: 800, fontSize: 18 }}>
-            {nextResetAt && (new Date(nextResetAt)).toLocaleDateString()}
-          </div>
-          <div style={{ color: '#ed3131', fontWeight: 600, fontSize: 16, marginTop: 3 }}>
+          <div className="reset-countdown">
             {formatCountdown(resetCountdown, true)}
           </div>
-          <div style={{ fontWeight: 600, color: '#ed3131', fontSize: 15, marginTop: 6 }}>
+          <div className="reset-note">
             (NOTE: Start of every 3rd month)
           </div>
         </div>

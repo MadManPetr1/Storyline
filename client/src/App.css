@@ -364,3 +364,43 @@ button, .add-line-btn {
 .light {
   --header-bg: #ffffff;
 }
+.cooldown-panel {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.cooldown-label {
+  font-weight: 500;
+  font-size: 17px;
+  margin-bottom: 5px;
+}
+
+.cooldown-label.bold {
+  font-weight: 700;
+  margin-top: 12px;
+}
+
+.cooldown-value {
+  font-family: monospace;
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.reset-date {
+  color: #ed3131;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.reset-countdown {
+  color: #ed3131;
+  font-weight: 600;
+  font-size: 16px;
+  margin-top: 3px;
+}
+
+.reset-note {
+  font-weight: 600;
+  color: #ed3131;
+  font-size: 15px;
+  margin-top: 6px;
+}
