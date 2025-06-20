@@ -405,13 +405,13 @@ button, .add-line-btn {
   margin-top: 6px;
 }
 :root {
-  --bg-color: #ffffff;
+  --bg-color: #f5f5f5;
   --border-color: #dddddd;
   --glow-color: #202020;
 }
 
 .dark {
-  --bg-color: #121212;
+  --bg-color: #202020;
   --border-color: #333333;
   --glow-color: #f5f5f5;
 }
