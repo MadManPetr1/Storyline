@@ -216,9 +216,8 @@ export default function MainApp() {
     <div className={`app ${darkMode ? 'dark' : 'light'}`}>
       {/* Header */}
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-
       <main className="main-columns">
-        {/* Left Cooldown Panel */}
+        {/* Cooldown Panel */}
         <CooldownPanel
           titleCooldown={titleCooldown}
           lineCooldown={lineCooldown}
