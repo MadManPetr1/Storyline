@@ -3,6 +3,8 @@ import './App.css';
 
 import Header from "./components/Header";
 import CooldownPanel from "./components/CooldownPanel";
+import AddLinePanel from "./components/AddLinePanel";
+import StoryCard from "./components/StoryCard";
 
 const SunSVG = () => <span style={{ fontSize: 24 }}>☀️</span>;
 const MoonSVG = () => <span style={{ fontSize: 24 }}>🌑</span>;
@@ -224,111 +226,35 @@ export default function MainApp() {
           nextResetAt={nextResetAt}
           resetCountdown={resetCountdown}
         />
-
         {/* Center Story Card */}
-        <div className="story-card">
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 14 }}>
-            {editMode ? (
-              <>
-                <input
-                  value={newTitle}
-                  onChange={e => setNewTitle(e.target.value)}
-                  maxLength={38}
-                  style={{
-                    fontSize: 25, padding: 4, borderRadius: 5,
-                    border: '1px solid #888', marginRight: 12
-                  }}
-                />
-                <button onClick={handleRename} style={{
-                  marginRight: 7, fontWeight: 500, background: '#36f', color: '#fff',
-                  border: 'none', borderRadius: 5, padding: '4px 14px'
-                }}>Save</button>
-                <button onClick={() => { setEditMode(false); setError(''); }} style={{ fontWeight: 500 }}>Cancel</button>
-              </>
-            ) : (
-              <>
-                <h1 style={{ flex: 1, margin: 0, fontSize: 31 }}>{story ? (story.name || 'Untitled') : 'Loading Story...'}</h1>
-                <button
-                  onClick={() => { setEditMode(true); setNewTitle(story ? (story.name || '') : ''); setError(''); }}
-                  disabled={titleCooldown > 0}
-                  style={{
-                    padding: '3px 12px', borderRadius: 5, border: 'none',
-                    background: titleCooldown > 0 ? '#aaa' : '#2577f7',
-                    color: '#fff', fontWeight: 500,
-                    cursor: titleCooldown > 0 ? 'not-allowed' : 'pointer'
-                  }}
-                  title={titleCooldown > 0 ? `Cooldown active.` : 'Rename Story'}
-                >
-                  Rename
-                </button>
-              </>
-            )}
-          </div>
-          <hr style={{ margin: '10px 0 18px 0' }} />
-          <div style={{ minHeight: 100, marginBottom: 19 }}>
-            {lines.length === 0
-              ? <div style={{ color: '#888', fontSize: 19 }}>No lines yet.</div>
-              : lines.map(line => (
-                <div key={line.id}
-                  className="story-line"
-                  style={{
-                    borderBottom: `3px solid ${line.color || '#aaa'}`
-                  }}>
-                  <div style={{ color: line.color || '#333', fontWeight: 500 }}>
-                    {line.text}
-                  </div>
-                  {line.username && (
-                    <div className="username" style={{ color: line.color || '#555' }}>
-                      [by {line.username}]
-                    </div>
-                  )}
-                </div>
-              ))}
-          </div>
-          {error && <div style={{ color: 'crimson', marginTop: 10, fontWeight: 600 }}>{error}</div>}
-          {success && <div style={{ color: 'green', marginTop: 10, fontWeight: 600 }}>{success}</div>}
-        </div>
-
+        <StoryCard
+          story={story}
+          lines={lines}
+          editMode={editMode}
+          newTitle={newTitle}
+          setNewTitle={setNewTitle}
+          titleCooldown={titleCooldown}
+          handleRename={handleRename}
+          setEditMode={setEditMode}
+          error={error}
+          success={success}
+        />
         {/* Right Add Line Box */}
-        <form className="add-panel" onSubmit={addLine}>
-          <div style={{
-            width: '100%', display: 'flex', alignItems: 'center',
-            justifyContent: 'space-between', marginBottom: 7
-          }}>
-            <input
-              className="username-input"
-              placeholder="Username"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              maxLength={20}
-            />
-            <input
-              className="color-picker"
-              type="color"
-              value={color}
-              onChange={e => setColor(e.target.value)}
-            />
-          </div>
-          <textarea
-            className="line-textarea"
-            required
-            placeholder="Add your line..."
-            value={text}
-            onChange={e => setText(e.target.value)}
-            rows={3}
-            maxLength={512}
-            disabled={!canAdd}
-          />
-          <button className="add-line-btn" type="submit" disabled={!canAdd || !text}>
-            Add Line
-          </button>
-        </form>
+        <AddLinePanel
+          username={username}
+          setUsername={setUsername}
+          color={color}
+          setColor={setColor}
+          text={text}
+          setText={setText}
+          canAdd={canAdd}
+          addLine={addLine}
+        />
       </main>
 
       <footer className="footer">
         Story resets every 3 months. All contributions are public.&nbsp;
         Refreshes automatically every minute.
       </footer>
-    </div>
-  );
+    </div>);
 }

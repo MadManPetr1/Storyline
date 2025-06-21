@@ -2,19 +2,31 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Storyline – Let’s write a story together."
-    />
+    <meta name="description" content="Storyline – Let’s write a story together." />
+    <meta name="color-scheme" content="dark light" />
+
     <title>Storyline</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet" />
+
+    <!-- Favicon -->
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
   </head>
+
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <style>
+        body { font-family: Inter, sans-serif; padding: 40px; background: #111; color: #eee; text-align: center; }
+      </style>
+      <h1>Storyline requires JavaScript</h1>
+      <p>Please enable it in your browser settings to continue.</p>
+    </noscript>
+
     <div id="root"></div>
   </body>
 </html>
