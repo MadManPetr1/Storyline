@@ -41,13 +41,11 @@ h1, h2, h3, h4, .header-title {
     gap: 24px;
   }
 }
-/* Container for AddLinePanel and NotesPanel */
-/* App.css or a shared layout.css */
 .add-notes-container {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  width: 100%;
+  min-width: 400px;
   justify-content: center;
   align-items: center;
 }
@@ -58,12 +56,6 @@ h1, h2, h3, h4, .header-title {
     flex-wrap: wrap;
     gap: 16px;
     justify-content: center;
-  }
-
-  .add-panel,
-  .notes-wrapper {
-    flex: 1;
-    min-width: 0;
   }
 }
 /* ---------- FOOTER ---------- */
