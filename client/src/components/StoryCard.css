@@ -1,0 +1,211 @@
+.story-card {
+  flex: 1;
+  max-width: 680px;
+  padding: 36px 40px;
+  background: var(--panel-bg);
+  color: var(--text-primary);
+  border-radius: 14px;
+  box-shadow: var(--panel-shadow);
+  font-family: "Georgia", serif;
+  line-height: 1.7;
+  font-size: 17px;
+}
+
+/* Title Row */
+.story-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.story-title {
+  font-family: "Playfair Display", serif;
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0;
+}
+.rename-btn,
+.title-save,
+.title-cancel {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+.rename-btn {
+  background: #2577f7;
+  color: white;
+}
+.rename-btn:disabled {
+  background: #888;
+  cursor: not-allowed;
+}
+.title-save {
+  background: #36f;
+  color: white;
+}
+.title-cancel {
+  background: transparent;
+  color: var(--text-primary);
+}
+.title-input {
+  flex: 1;
+  padding: 6px 12px;
+  font-size: 18px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--panel-bg);
+  color: var(--text-primary);
+}
+
+/* Story Lines */
+.story-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.story-line {
+  position: relative;
+  padding-left: 12px;
+  padding-right: 6px;
+  border-left: 3px solid var(--border-color);
+  background: transparent;
+  transition: background 0.2s ease;
+}
+.story-line:hover {
+  background: rgba(255, 255, 255, 0.015);
+}
+.line-text {
+  position: relative;
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--text-primary);
+  font-family: "Georgia", serif;
+}
+
+/* Hovered author */
+.line-hover-user {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-style: italic;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.story-line:hover .line-hover-user {
+  opacity: 0.9;
+}
+
+/* Empty state */
+.empty {
+  color: var(--text-secondary);
+  font-size: 16px;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Feedback messages */
+.feedback {
+  font-weight: 600;
+  margin-top: 12px;
+}
+.feedback.error {
+  color: crimson;
+}
+.feedback.success {
+  color: seagreen;
+}
+.story-lines {
+  line-height: 1.8;
+  font-size: 17px;
+  color: var(--text-primary);
+  font-family: "Georgia", serif;
+  text-align: left;
+}
+
+.story-line {
+  display: inline;
+  position: relative;
+  white-space: pre-wrap;
+}
+
+.story-line .line-text {
+  border-bottom: 2px solid currentColor;
+  padding-right: 4px;
+}
+
+.story-line .line-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-right: 12px;
+}
+.story-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 0;
+  font-size: 17px;
+  line-height: 1.7;
+  font-family: "Georgia", serif;
+}
+
+.story-line {
+  position: relative;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.line-text {
+  display: block;
+  padding-left: 4px;
+  padding-right: 4px;
+  border-bottom: 2px solid currentColor;
+  color: var(--text-primary);
+}
+
+.line-author {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  padding-left: 6px;
+}
+.story-flow {
+  font-size: 16px;
+  line-height: 1.8;
+  font-family: Georgia, serif;
+  text-align: justify;
+  color: var(--text-primary);
+}
+
+.story-snippet {
+  display: inline-block;
+  position: relative;
+  transition: border-bottom 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.story-snippet:hover {
+  border-bottom: 2px solid var(--hover-color);
+}
+
+.story-snippet .author {
+  left: 0;
+  top: 100%;
+  font-size: 12px;
+  color: var(--hover-color);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  white-space: nowrap;
+  margin-left: 4px;
+}
+
+.story-snippet:hover .author {
+  opacity: 1;
+}

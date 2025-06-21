@@ -1,0 +1,34 @@
+.notes-wrapper {
+  margin-top: 24px;
+  width: 100%;
+}
+
+.notes-toggle {
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.notes-toggle:hover {
+  background: #666;
+}
+
+.notes-box {
+  margin-top: 12px;
+  width: 100%;
+  min-height: 140px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--panel-bg);
+  color: var(--text-primary);
+  border-radius: 6px;
+  resize: vertical;
+  font-family: monospace;
+  font-size: 15px;
+  line-height: 1.5;
+}
