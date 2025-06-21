@@ -1,8 +1,25 @@
+/* NotesPanel.css */
+
+/* Main container */
 .notes-wrapper {
-  margin-top: 24px;
+  background: var(--panel-bg);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: var(--panel-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 440px;
   width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  position: sticky;
+  top: 96px;
+  align-self: flex-start;
+  transition: all 0.3s ease;
 }
 
+/* Toggle button to show/hide notes */
 .notes-toggle {
   background: #444;
   color: white;
@@ -18,6 +35,7 @@
   background: #666;
 }
 
+/* Notes textarea */
 .notes-box {
   margin-top: 12px;
   width: 100%;
@@ -31,4 +49,26 @@
   font-family: monospace;
   font-size: 15px;
   line-height: 1.5;
+  box-sizing: border-box;
+}
+
+/* 📱 Mobile responsiveness */
+@media (max-width: 900px) {
+  .add-notes-container {
+    width: 48%;
+    min-width: 280px;
+    max-width: 420px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0px;
+  }
+
+  .add-panel,
+  .notes-wrapper {
+    min-width: 280px;
+    position: static;
+    align-self: center;
+  }
 }

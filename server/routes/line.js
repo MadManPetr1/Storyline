@@ -13,8 +13,8 @@ function getClientIp(req) {
 // POST /api/line — Add a new line
 router.post('/', (req, res) => {
   const { text, username = '', color = '' } = req.body;
-  if (!text || typeof text !== 'string' || text.trim().length < 1 || text.trim().length > 512) {
-    return res.status(400).json({ error: 'Invalid line text. (1–512 characters required)' });
+  if (!text || typeof text !== 'string' || text.trim().length < 1 || text.trim().length > 256) {
+    return res.status(400).json({ error: 'Invalid line text. (1–256 characters required)' });
   }
 
   const ip = getClientIp(req);

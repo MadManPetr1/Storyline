@@ -1,18 +1,23 @@
 /* CooldownPanel.css */
 
+/* Wrapper panel */
 .cooldown-panel {
   background-color: var(--panel-bg);
-  padding: 22px 24px;
+  padding: 24px;
   border-radius: 12px;
   box-shadow: var(--panel-shadow);
   display: flex;
   flex-direction: column;
   gap: 18px;
-  text-align: left;
-  max-width: 260px;
+  width: 212px;
+  margin-left: 160px;
+  position: sticky;
+  top: 96px;
+  align-self: flex-start;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Each cooldown block */
 .cooldown-block {
   display: flex;
   flex-direction: column;
@@ -23,42 +28,52 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
-  letter-spacing: 0.5px;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .cooldown-value {
   font-family: monospace;
   font-size: 24px;
   font-weight: 600;
-  color: var(--text-primary);
-  padding: 4px 0;
   text-align: center;
+  padding: 4px 0;
   border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 .reset-date {
   font-size: 16px;
   font-weight: 700;
   color: var(--highlight-color);
-  letter-spacing: 1px;
   text-align: center;
+  letter-spacing: 1px;
 }
 
 .reset-countdown {
   font-family: monospace;
   font-size: 24px;
   font-weight: 600;
-  color: var(--highlight-color);
-  padding: 4px 0;
   text-align: center;
+  padding: 4px 0;
   border-bottom: 1px solid var(--border-color);
+  color: var(--highlight-color);
 }
 
 .reset-note {
   font-size: 12px;
   color: var(--highlight-color);
-  opacity: 0.8;
-  margin-top: 4px;
+  opacity: 0.75;
   text-align: center;
+  margin-top: 4px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .cooldown-panel {
+    margin: 0;
+    position: static;
+    text-align: center;
+    align-self: center;
+  }
 }

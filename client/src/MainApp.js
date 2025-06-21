@@ -190,20 +190,20 @@ export default function MainApp() {
           error={error}
           success={success}
         />
-        <AddLinePanel
-          username={username}
-          setUsername={setUsername}
-          color={color}
-          setColor={setColor}
-          text={text}
-          setText={setText}
-          canAdd={canAdd}
-          addLine={addLine}
-        />
+        <div className="add-notes-container">
+          <AddLinePanel
+            username={username}
+            setUsername={setUsername}
+            color={color}
+            setColor={setColor}
+            text={text}
+            setText={setText}
+            canAdd={canAdd}
+            addLine={addLine}
+          />
+          {story && <NotesPanel storyId={story.id} />}
+        </div>
       </main>
-
-      {story && <NotesPanel storyId={story.id} />}
-
       <footer className="footer">
         Story resets every 3 months. All contributions are public. Refreshes automatically every minute.
       </footer>

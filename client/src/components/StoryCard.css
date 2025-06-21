@@ -1,6 +1,10 @@
+/* StoryCard.css */
+
+/* StoryCard Container */
 .story-card {
   flex: 1;
-  max-width: 680px;
+  max-width: 640px;
+  min-width: 440px;
   padding: 36px 40px;
   background: var(--panel-bg);
   color: var(--text-primary);
@@ -9,21 +13,25 @@
   font-family: "Georgia", serif;
   line-height: 1.7;
   font-size: 17px;
+  align-self: stretch;
 }
 
-/* Title Row */
+/* Title Section */
 .story-title-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 6px;
 }
+
 .story-title {
   font-family: "Playfair Display", serif;
   font-size: 32px;
   font-weight: 800;
   margin: 0;
 }
+
+/* Rename Buttons */
 .rename-btn,
 .title-save,
 .title-cancel {
@@ -34,22 +42,28 @@
   border: none;
   cursor: pointer;
 }
+
 .rename-btn {
   background: #2577f7;
   color: white;
 }
+
 .rename-btn:disabled {
   background: #888;
   cursor: not-allowed;
 }
+
 .title-save {
   background: #36f;
   color: white;
 }
+
 .title-cancel {
   background: transparent;
   color: var(--text-primary);
 }
+
+/* Rename input */
 .title-input {
   flex: 1;
   padding: 6px 12px;
@@ -64,95 +78,12 @@
 .story-lines {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  margin-bottom: 20px;
-}
-.story-line {
-  position: relative;
-  padding-left: 12px;
-  padding-right: 6px;
-  border-left: 3px solid var(--border-color);
-  background: transparent;
-  transition: background 0.2s ease;
-}
-.story-line:hover {
-  background: rgba(255, 255, 255, 0.015);
-}
-.line-text {
-  position: relative;
-  font-size: 17px;
-  font-weight: 400;
-  color: var(--text-primary);
-  font-family: "Georgia", serif;
-}
-
-/* Hovered author */
-.line-hover-user {
-  position: absolute;
-  right: 0;
-  top: 0;
-  font-size: 11px;
-  color: var(--text-secondary);
-  font-style: italic;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-.story-line:hover .line-hover-user {
-  opacity: 0.9;
-}
-
-/* Empty state */
-.empty {
-  color: var(--text-secondary);
-  font-size: 16px;
-  text-align: center;
-  font-style: italic;
-}
-
-/* Feedback messages */
-.feedback {
-  font-weight: 600;
-  margin-top: 12px;
-}
-.feedback.error {
-  color: crimson;
-}
-.feedback.success {
-  color: seagreen;
-}
-.story-lines {
-  line-height: 1.8;
-  font-size: 17px;
-  color: var(--text-primary);
-  font-family: "Georgia", serif;
-  text-align: left;
-}
-
-.story-line {
-  display: inline;
-  position: relative;
-  white-space: pre-wrap;
-}
-
-.story-line .line-text {
-  border-bottom: 2px solid currentColor;
-  padding-right: 4px;
-}
-
-.story-line .line-meta {
-  font-size: 12px;
-  color: var(--text-secondary);
-  font-style: italic;
-  margin-right: 12px;
-}
-.story-lines {
-  display: flex;
-  flex-direction: column;
   gap: 12px;
   padding: 4px 0;
   font-size: 17px;
-  line-height: 1.7;
+  line-height: 1.5;
   font-family: "Georgia", serif;
+  text-align: left;
 }
 
 .story-line {
@@ -161,14 +92,18 @@
   border-bottom: 2px solid var(--border-color);
 }
 
+/* Line Text Block */
 .line-text {
   display: block;
   padding-left: 4px;
   padding-right: 4px;
   border-bottom: 2px solid currentColor;
   color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
+/* Author Below Line */
 .line-author {
   font-size: 12px;
   font-style: italic;
@@ -176,19 +111,50 @@
   margin-top: 2px;
   padding-left: 6px;
 }
-.story-flow {
-  font-size: 16px;
-  line-height: 1.8;
-  font-family: Georgia, serif;
-  text-align: justify;
-  color: var(--text-primary);
+
+/* Author on Hover (Optional Alt) */
+.line-hover-user {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text-secondary);
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
+.story-line:hover .line-hover-user {
+  opacity: 0.9;
+}
+
+/* Empty / Feedback */
+.empty {
+  color: var(--text-secondary);
+  font-size: 16px;
+  text-align: center;
+  font-style: italic;
+}
+
+.feedback {
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+.feedback.error {
+  color: crimson;
+}
+
+.feedback.success {
+  color: seagreen;
+}
+
+/* Hover Story Snippet */
 .story-snippet {
   display: inline-block;
   position: relative;
-  transition: border-bottom 0.2s ease;
   border-bottom: 2px solid transparent;
+  transition: border-bottom 0.2s ease;
 }
 
 .story-snippet:hover {
@@ -208,4 +174,41 @@
 
 .story-snippet:hover .author {
   opacity: 1;
+}
+
+/* 📱 Mobile responsiveness */
+@media (max-width: 900px) {
+  .story-card {
+    padding: 24px;
+    min-width: auto;
+    max-width: 92%;
+    align-self: center;
+    border-radius: 10px;
+    font-size: 16px;
+    line-height: 1.6;
+}
+  .story-title {
+    font-size: 30px;
+  }
+
+  .rename-btn,
+  .title-save,
+  .title-cancel {
+    font-size: 13px;
+    padding: 5px 12px;
+  }
+
+  .title-input {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  .line-text {
+    font-size: 15px;
+  }
+
+  .line-author,
+  .line-hover-user {
+    font-size: 11px;
+  }
 }

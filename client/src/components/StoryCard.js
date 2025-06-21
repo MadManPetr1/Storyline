@@ -60,15 +60,15 @@ export default function StoryCard({
       <hr className="story-separator" />
 
         {/* Story Lines */}
-        <div className="story-flow">
-          {lines.map((line, index) => (
-            <span key={line.id} className="story-snippet" style={{ '--hover-color': line.color || '#aaa' }}>
-              {line.text}
-              <span className="author">@{line.username}</span>
-              {index < lines.length - 1 ? ' ' : ''}
-            </span>
-          ))}
-        </div>
+    <div className="story-flow">
+      {lines.map((line, index) => (
+        <span key={line.id} className="story-snippet" style={{ '--hover-color': line.color || '#aaa' }}>
+          {line.text}
+          <span className="author">@{line.username}</span>
+          {index < lines.length - 1 ? ' ' : ''}
+        </span>
+      ))}
+    </div>
 
 
       {/* Feedback */}

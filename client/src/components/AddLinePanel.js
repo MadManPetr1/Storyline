@@ -54,11 +54,11 @@ export default function AddLinePanel({
                 value={text}
                 onChange={e => setText(e.target.value)}
                 rows={3}
-                maxLength={512}
+                maxLength={256}
                 disabled={!canAdd}
             />
             <div className={`char-counter ${text.length > 450 ? 'warn' : ''}`}>
-                {text.length}/512
+                {text.length}/256
             </div>
         </div>
     <button
