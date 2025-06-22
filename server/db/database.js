@@ -49,6 +49,29 @@ db.serialize(() => {
     )
   `);
 
+  // 🔒 Line flags (moderation)
+  db.run(`
+    CREATE TABLE IF NOT EXISTS line_flags (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      line_id INTEGER NOT NULL,
+      reason TEXT,
+      flagged_by TEXT,
+      flagged_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      resolved BOOLEAN DEFAULT 0
+    )
+  `);
+
+  // 📝 Admin action logs
+  db.run(`
+    CREATE TABLE IF NOT EXISTS admin_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      action TEXT NOT NULL,
+      target TEXT,
+      admin_id TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   // Auto-insert a blank default story if no story exists
   db.get("SELECT COUNT(*) as cnt FROM stories", (err, row) => {
     if (!err && row.cnt === 0) {

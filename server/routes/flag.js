@@ -4,13 +4,9 @@ const db = require('../db/database');
 const router = express.Router();
 
 router.post('/:id', (req, res) => {
-  const lineId = parseInt(req.params.id, 10);
+  const lineId = req.params.id;
   const { reason } = req.body;
   const flaggedBy = req.ip || 'anonymous';
-
-  if (!lineId || isNaN(lineId)) {
-    return res.status(400).json({ error: 'Invalid line ID.' });
-  }
 
   if (!reason || reason.trim().length < 2) {
     return res.status(400).json({ error: 'Reason too short.' });
@@ -18,11 +14,10 @@ router.post('/:id', (req, res) => {
 
   db.run(
     "INSERT INTO line_flags (line_id, reason, flagged_by, flagged_at) VALUES (?, ?, ?, datetime('now'))",
-    [lineId, reason.trim(), flaggedBy],
+    [lineId, reason, flaggedBy],
     function (err) {
-      console.log(`📩 Incoming flag for line ${lineId} with reason: ${reason}`);
       if (err) {
-        console.error("❌ DB ERROR while flagging:", err.message);
+        console.error("Flag insert failed:", err.message); // ✅ helpful log
         return res.status(500).json({ error: 'Failed to flag line.' });
       }
       res.json({ success: true });
