@@ -76,4 +76,25 @@ router.get('/cooldown', (req, res) => {
   );
 });
 
+// POST /api/line/flag/:id — Flag a line
+router.post('/flag/:id', (req, res) => {
+  const lineId = parseInt(req.params.id, 10);
+  const { reason } = req.body;
+  const flaggedBy = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || '').split(',')[0].trim();
+
+  if (!reason || reason.length < 3) {
+    return res.status(400).json({ error: "Reason too short" });
+  }
+
+  db.run(
+    "INSERT INTO line_flags (line_id, reason, flagged_by) VALUES (?, ?, ?)",
+    [lineId, reason, flaggedBy],
+    function (err) {
+      if (err) return res.status(500).json({ error: 'Database error.' });
+      res.json({ success: true });
+    }
+  );
+});
+
+
 module.exports = router;

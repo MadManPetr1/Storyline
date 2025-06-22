@@ -5,6 +5,7 @@ const db = require('./db/database');
 const storyRoutes = require('./routes/story');
 const lineRoutes = require('./routes/line');
 const adminRoutes = require('./routes/admin');
+const flagRoutes = require('./routes/flag');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,7 +16,7 @@ app.use(bodyParser.json());
 app.use('/api/story', storyRoutes);
 app.use('/api/line', lineRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/admin', require('./routes/admin'));
+app.use('/api/flag', flagRoutes);
 
 app.get('/', (req, res) => res.send('Backend is working!'));
 

@@ -120,11 +120,7 @@
   font-style: italic;
   color: var(--text-secondary);
   opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.story-line:hover .line-hover-user {
-  opacity: 0.9;
+  transition: opacity 0.3s ease;
 }
 
 /* Empty / Feedback */
@@ -150,14 +146,21 @@
 
 /* Hover Story Snippet */
 .story-snippet {
+  width: 100%;
   display: inline-block;
   position: relative;
-  border-bottom: 2px solid transparent;
-  transition: border-bottom 0.2s ease;
+  border-bottom: 0px solid transparent;
+  border-left: 2px solid var(--hover-color);
+  border-right: 2px solid var(--hover-color);
+  border-radius: 5px;
+  margin-bottom: 2px;
+  transition: var(--transition);
 }
 
 .story-snippet:hover {
   border-bottom: 2px solid var(--hover-color);
+  background: var(--bg-panel-hover);
+  transition: var(--transition);
 }
 
 .story-snippet .author {
@@ -169,10 +172,28 @@
   transition: opacity 0.6s ease;
   white-space: nowrap;
   margin-left: 4px;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .story-snippet:hover .author {
   opacity: 1;
+}
+
+/* Flag Button */
+.flag-btn {
+  all: unset;
+  cursor: pointer;
+  color: #ed3131;
+  font-size: 14px;
+  transform: translateY(1px);
+  transition: var(--transition);
+}
+
+.flag-btn:hover {
+  transform: scale(1.1);
 }
 
 /* 📱 Mobile responsiveness */
@@ -208,5 +229,9 @@
   .line-author,
   .line-hover-user {
     font-size: 11px;
+  }
+  .flag-btn {
+    font-size: 14px;
+    margin-right: -2px;
   }
 }

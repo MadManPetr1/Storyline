@@ -1,15 +1,22 @@
-import React, { useState, useEffect } from "react";
-import "./App.css";
+import React, { useEffect, useState } from 'react';
+import './App.css';
+
+import Header from "./components/Header";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 export default function AdminDashboard() {
+  const [darkMode, setDarkMode] = useState(true);
+  const toggleDarkMode = () => setDarkMode(prev => !prev);
+
   const [token, setToken] = useState(localStorage.getItem("admin_token") || "");
   const [password, setPassword] = useState("");
   const [lines, setLines] = useState([]);
   const [stats, setStats] = useState({ lines: 0, contributors: 0 });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [flags, setFlags] = useState([]);
+  const [tab, setTab] = useState('flags');
 
   // Secure login
   async function handleLogin(e) {
@@ -53,7 +60,12 @@ export default function AdminDashboard() {
     setLoading(false);
   }
 
-  useEffect(() => { fetchAll(); }, [token]);
+  useEffect(() => {
+    if (token) {
+      fetchAll();
+      fetchFlags();
+    }
+  }, [token]);
 
   // Delete line
   async function deleteLine(id) {
@@ -71,6 +83,16 @@ export default function AdminDashboard() {
     }
   }
 
+  async function fetchFlags() {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/flags`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setFlags(data.flags || []);
+    } catch {}
+  }
+
   // Logout
   function handleLogout() {
     setToken("");
@@ -79,15 +101,11 @@ export default function AdminDashboard() {
 
   // --- Render ---
   return (
-    <div className="app dark">
-      <header className="header">
-        <div style={{ width: 52 }} />
-        <div className="header-title">Storyline <span style={{ fontWeight: 300 }}>- Dashboard</span></div>
-        <div style={{ width: 52 }} />
-      </header>
-
+    <div className={`app ${darkMode ? 'dark' : 'light'}`}>
+      <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+  
       <main style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", margin: "60px 0" }}>
-        <div className="story-card" style={{ width: 820, minHeight: 340 }}>
+        <div className="story-card" style={{ width: 860, minHeight: 400 }}>
           {!token ? (
             <form onSubmit={handleLogin} style={{ maxWidth: 320, margin: "60px auto", textAlign: "center" }}>
               <h2>Admin Login</h2>
@@ -111,71 +129,148 @@ export default function AdminDashboard() {
               {error && <div style={{ color: "crimson", marginTop: 12 }}>{error}</div>}
             </form>
           ) : (
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h2 style={{ marginBottom: 0 }}>Manage Lines</h2>
+            <>
+              {/* Top Panel */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
                 <div>
-                  <b>Total lines:</b> {stats.lines} &nbsp;&nbsp;
-                  <b>Contributors:</b> {stats.contributors}
-                  <button style={{
-                    marginLeft: 24,
-                    padding: "7px 17px", borderRadius: 5, border: "none",
-                    background: "#333", color: "#fff", fontWeight: 600, fontSize: 16, cursor: "pointer"
-                  }} onClick={handleLogout}>Logout</button>
+                  <h2 style={{ marginBottom: 4 }}>Admin Dashboard</h2>
+                  <div>
+                    <b>Total lines:</b> {stats.lines} &nbsp;&nbsp;
+                    <b>Contributors:</b> {stats.contributors}
+                  </div>
                 </div>
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    padding: "8px 20px", borderRadius: 6, background: "#222",
+                    color: "#fff", border: "none", fontWeight: 600, fontSize: 15, cursor: "pointer"
+                  }}
+                >
+                  Logout
+                </button>
               </div>
-              <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 18 }}>
-                <thead>
-                  <tr style={{ borderBottom: "2px solid #ccc", background: "#f7f7f9" }}>
-                    <th>ID</th>
-                    <th>User</th>
-                    <th>Color</th>
-                    <th>Line</th>
-                    <th>Date</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lines.map(l => (
-                    <tr key={l.id} style={{ borderBottom: "1px solid #eee" }}>
-                      <td>{l.id}</td>
-                      <td>{l.username}</td>
-                      <td>
-                        <span style={{
-                          display: "inline-block",
-                          width: 18, height: 18, borderRadius: 4,
-                          background: l.color || "#eee", border: "1px solid #ccc"
-                        }} title={l.color}></span>
-                      </td>
-                      <td>{l.text}</td>
-                      <td style={{ fontSize: 13 }}>{l.created_at && l.created_at.replace("T", " ").slice(0, 16)}</td>
-                      <td>
-                        <button
-                          style={{ background: "#ed3131", color: "#fff", border: "none", padding: "6px 14px", borderRadius: 4, cursor: "pointer", fontWeight: 700 }}
-                          onClick={() => deleteLine(l.id)}
-                        >
-                          Delete
-                        </button>
-                      </td>
+                
+              {/* Tab Switch */}
+              <div style={{ display: "flex", gap: 14, marginBottom: 24 }}>
+                <button
+                  onClick={() => setTab('flags')}
+                  style={{
+                    padding: "6px 16px",
+                    borderRadius: 5,
+                    fontWeight: 600,
+                    border: tab === 'flags' ? '2px solid #36f' : '1px solid #888',
+                    background: tab === 'flags' ? '#eef2ff' : 'transparent',
+                    cursor: "pointer"
+                  }}
+                >
+                  🚩 Flagged Lines
+                </button>
+                <button
+                  onClick={() => setTab('lines')}
+                  style={{
+                    padding: "6px 16px",
+                    borderRadius: 5,
+                    fontWeight: 600,
+                    border: tab === 'lines' ? '2px solid #36f' : '1px solid #888',
+                    background: tab === 'lines' ? '#eef2ff' : 'transparent',
+                    cursor: "pointer"
+                  }}
+                >
+                  📜 All Lines
+                </button>
+              </div>
+                
+              {/* Flag Table */}
+              {tab === 'flags' && (
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "2px solid #ccc", background: "#f7f7f9" }}>
+                      <th>ID</th>
+                      <th>Text</th>
+                      <th>User</th>
+                      <th>Reason</th>
+                      <th>Flagged By</th>
+                      <th>When</th>
                     </tr>
-                  ))}
-                  {lines.length === 0 && (
-                    <tr>
-                      <td colSpan={6} style={{ color: "#888", textAlign: "center", padding: 30 }}>
-                        No lines yet.
-                      </td>
+                  </thead>
+                  <tbody>
+                    {flags.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} style={{ textAlign: "center", color: "#999", padding: 20 }}>No flags found.</td>
+                      </tr>
+                    ) : (
+                      flags.map(f => (
+                        <tr key={f.id} style={{ borderBottom: "1px solid #eee" }}>
+                          <td>{f.line_id}</td>
+                          <td>{f.text}</td>
+                          <td>{f.username}</td>
+                          <td>{f.reason || '—'}</td>
+                          <td>{f.flagged_by}</td>
+                          <td>{new Date(f.flagged_at).toLocaleString()}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+  
+              {/* Lines Table */}
+              {tab === 'lines' && (
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "2px solid #ccc", background: "#f7f7f9" }}>
+                      <th>ID</th>
+                      <th>User</th>
+                      <th>Color</th>
+                      <th>Line</th>
+                      <th>Date</th>
+                      <th>Actions</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {lines.map(l => (
+                      <tr key={l.id} style={{ borderBottom: "1px solid #eee" }}>
+                        <td>{l.id}</td>
+                        <td>{l.username}</td>
+                        <td>
+                          <span style={{
+                            display: "inline-block",
+                            width: 18, height: 18, borderRadius: 4,
+                            background: l.color || "#eee", border: "1px solid #ccc"
+                          }} title={l.color}></span>
+                        </td>
+                        <td>{l.text}</td>
+                        <td style={{ fontSize: 13 }}>{l.created_at && l.created_at.replace("T", " ").slice(0, 16)}</td>
+                        <td>
+                          <button
+                            style={{
+                              background: "#ed3131", color: "#fff", border: "none",
+                              padding: "6px 14px", borderRadius: 4, cursor: "pointer", fontWeight: 700
+                            }}
+                            onClick={() => deleteLine(l.id)}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {lines.length === 0 && (
+                      <tr>
+                        <td colSpan={6} style={{ color: "#888", textAlign: "center", padding: 30 }}>
+                          No lines yet.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              )}
+  
+              {/* Error Output */}
               {error && <div style={{ color: "crimson", marginTop: 12 }}>{error}</div>}
-            </div>
+            </>
           )}
         </div>
       </main>
-      <footer className="footer">
-        Admin only &mdash; Moderate lines, stats, and manage the story in real time.
-      </footer>
     </div>
   );
 }

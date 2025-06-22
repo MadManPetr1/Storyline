@@ -62,4 +62,45 @@ router.get('/stats', verifyAdmin, (req, res) => {
   });
 });
 
+// Get all flagged lines
+router.get('/flags', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  db.all(`
+    SELECT flags.id, flags.line_id, flags.created_at, lines.text, lines.username, lines.color
+    FROM flags
+    JOIN lines ON lines.id = flags.line_id
+    ORDER BY flags.created_at DESC
+  `, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ flags: rows });
+  });
+});
+
+
+// Resolve a flag
+router.post('/flag/:id/resolve', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+
+  const id = req.params.id;
+  db.run("UPDATE line_flags SET resolved = 1 WHERE id = ?", [id], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true });
+  });
+});
+
+// Admin log route
+router.post('/log', (req, res) => {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+
+  const { action, target, admin_id } = req.body;
+  db.run(
+    "INSERT INTO admin_logs (action, target, admin_id) VALUES (?, ?, ?)",
+    [action, target, admin_id || 'unknown'],
+    (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ success: true });
+    }
+  );
+});
+
 module.exports = router;
