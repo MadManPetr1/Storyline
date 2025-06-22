@@ -4,7 +4,6 @@
 .story-card {
   flex: 1;
   max-width: 640px;
-  min-width: 440px;
   padding: 36px 40px;
   background: var(--panel-bg);
   color: var(--text-primary);
