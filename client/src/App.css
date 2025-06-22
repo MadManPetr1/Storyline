@@ -1,106 +1,105 @@
-
-/* ---------- RESET ---------- */
+/*  Base Reset */
 body {
   margin: 0;
   padding: 0;
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 
-/* ---------- THEME CONTAINER ---------- */
+/* Layout Containers */
 .app {
   min-height: 100vh;
-  transition: background 0.3s, color 0.3s;
-}
-.app.dark {
-  background: #202020;
-}
-.app.light {
-  background: #f5f5f5;
+  background-color: var(--bg-color);
 }
 
-/* ---------- TYPOGRAPHY ---------- */
-h1, h2, h3, h4, .header-title {
-  font-family: 'Montserrat', 'Inter', 'Segoe UI', Arial, sans-serif;
-  font-weight: 800;
-  font-size: 24px;
-  letter-spacing: 0.25px;
-}
-
-/* ---------- MAIN LAYOUT ---------- */
 .main-columns {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  gap: 24px;
-  padding: 20px 0;
+  gap: var(--gap-main);
+  padding: var(--sidepanel-padding);
 }
+
+.add-notes-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 432px;
+  position: sticky;
+  top: var(--panel-sticky-top);
+  gap: var(--gap-main);
+}
+
+/* Responsive Tweaks */
+@media (max-width: 1300px) {
+  .add-notes-container {
+    min-width: 216px;
+  }
+}
+
 @media (max-width: 900px) {
   .main-columns {
     flex-direction: column;
     align-items: center;
-    gap: 24px;
+    gap: var(--gap-mobile);
+    padding: var(--sidepanel-padding-mobile);
   }
-}
-.add-notes-container {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  min-width: 400px;
-  justify-content: center;
-  align-items: center;
-}
-
-@media (max-width: 900px) {
   .add-notes-container {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 16px;
-    justify-content: center;
+    width: 100%;
+    gap: var(--gap-mobile);
   }
 }
-/* ---------- FOOTER ---------- */
-.footer {
-  width: 100vw;
-  min-height: 46px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 55px;
-  color: var(--text-secondary);
-  font-size: 16px;
-  border-top: 1px solid var(--border-color);
-}
+/*
+============================
+           GLOBALS
+============================ 
+*/
 
-/* ---------- SCROLLBAR ---------- */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-thumb {
-  background: #c2c2dc;
-  border-radius: 4px;
-}
-.app.dark ::-webkit-scrollbar-thumb {
-  background: #3a3a40;
-}
-
-/* ---------- VARIABLES ---------- */
+/* Light Theme Variables */
 :root {
-  --panel-bg: #f5f5f5;
-  --panel-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
-  --text-primary: #222;
+  --bg-color: #f5f5f5;
+  --panel-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+  --text-primary: #202020;
   --text-secondary: #666;
-  --border-color: #dddddd;
   --highlight-color: #e53935;
   --glow-color: #202020;
+  --border-color: #dddddd;
+
+  /* Layout spacing */
+  --gap-main: 24px;
+  --gap-mobile: 16px;
+  --sidepanel-padding: 24px;
+  --sidepanel-padding-mobile: 16px;
+
+  /* Panels */
+  --panel-border-radius: 16px;
+  --panel-max-width: 440px;
+  --panel-sticky-top: 99px;
+  --panel-gap: 12px;
+
+  /* Inputs */
+  --input-padding: 12px;
+  --input-border-radius: 8px;
+  --input-bg: var(--panel-bg);
+  --input-font-family: inherit;
+
+  /* Sizes */
+  --twenty-four-px: 24px;
+  --sixteen-px: 16px;
+  --fourteen-px: 14px;
+  --twelve-px: 12px;
+  --panel-line-height: 1;
+
+  --transition: all 0.3s, color 0.3s;
 }
 
+/*  Dark Theme Overrides */
 .dark {
   --bg-color: #202020;
-  --panel-bg: #202020;
-  --panel-shadow: 0 0 14px rgba(0, 0, 0, 0.4);
-  --text-primary: #fff;
+  --panel-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+  --text-primary: #f5f5f5;
   --text-secondary: #aaa;
   --highlight-color: #ff5c5c;
-  --border-color: #333333;
   --glow-color: #f5f5f5;
+  --border-color: #333333;
 }

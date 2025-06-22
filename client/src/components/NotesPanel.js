@@ -21,7 +21,7 @@ export default function NotesPanel({ storyId }) {
   return (
     <div className="notes-wrapper">
       <button className="notes-toggle" onClick={() => setVisible(v => !v)}>
-        {visible ? "🗒️ Hide Notes" : "🗒️ Show Notes"}
+        {visible ? "Hide Notes" : "Show Notes"}
       </button>
 
       {visible && (

@@ -204,9 +204,6 @@ export default function MainApp() {
           {story && <NotesPanel storyId={story.id} />}
         </div>
       </main>
-      <footer className="footer">
-        Story resets every 3 months. All contributions are public. Refreshes automatically every minute.
-      </footer>
     </div>
   );
 }

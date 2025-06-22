@@ -57,7 +57,7 @@ export default function AddLinePanel({
                 maxLength={256}
                 disabled={!canAdd}
             />
-            <div className={`char-counter ${text.length > 450 ? 'warn' : ''}`}>
+            <div className={`char-counter ${text.length > 128 ? 'warn' : ''}`}>
                 {text.length}/256
             </div>
         </div>

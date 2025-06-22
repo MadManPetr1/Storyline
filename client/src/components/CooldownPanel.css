@@ -1,31 +1,28 @@
-/* CooldownPanel.css */
-
-/* Wrapper panel */
+/* ---------- Wrapper Panel ---------- */
 .cooldown-panel {
-  background-color: var(--panel-bg);
-  padding: 24px;
-  border-radius: 12px;
+  background: var(--bg-color);
+  border-radius: var(--panel-border-radius);
   box-shadow: var(--panel-shadow);
+  padding: var(--sidepanel-padding);
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  width: 212px;
-  margin-left: 160px;
+  gap: var(--panel-gap);
   position: sticky;
-  top: 96px;
+  top: var(--panel-sticky-top);
   align-self: flex-start;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: all 0.3s ease;
+  width: 216px;
 }
 
-/* Each cooldown block */
+/* ---------- Cooldown Block ---------- */
 .cooldown-block {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .cooldown-label {
-  font-size: 14px;
+  font-size: var(--fourteen-px);
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -34,7 +31,7 @@
 
 .cooldown-value {
   font-family: monospace;
-  font-size: 24px;
+  font-size: var(--twenty-four-px);
   font-weight: 600;
   text-align: center;
   padding: 4px 0;
@@ -42,17 +39,19 @@
   color: var(--text-primary);
 }
 
+/* ---------- Reset Section ---------- */
 .reset-date {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: var(--sixteen-px);
+  font-weight: 600;
   color: var(--highlight-color);
   text-align: center;
   letter-spacing: 1px;
+  padding-top: 4px;
 }
 
 .reset-countdown {
   font-family: monospace;
-  font-size: 24px;
+  font-size: var(--twenty-four-px);
   font-weight: 600;
   text-align: center;
   padding: 4px 0;
@@ -61,19 +60,19 @@
 }
 
 .reset-note {
-  font-size: 12px;
+  font-size: var(--twelve-px);
   color: var(--highlight-color);
   opacity: 0.75;
   text-align: center;
-  margin-top: 4px;
+  padding-top: 4px;
 }
 
-/* Responsive tweaks */
+/* ---------- Responsive ---------- */
 @media (max-width: 900px) {
   .cooldown-panel {
-    margin: 0;
     position: static;
-    text-align: center;
     align-self: center;
+    text-align: center;
+    padding: var(--sidepanel-padding-mobile);
   }
 }
