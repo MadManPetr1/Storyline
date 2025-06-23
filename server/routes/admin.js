@@ -1,11 +1,13 @@
+// server/routes/admin.js
+
 const express = require('express');
 const db = require('../db/database');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
-// Helper: verify token middleware
+// --- JWT Auth Middleware ---
 function verifyAdmin(req, res, next) {
   const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'Missing token' });
@@ -18,18 +20,19 @@ function verifyAdmin(req, res, next) {
   }
 }
 
-// Admin login: POST /api/admin/login { password }
+// --- AUTH: Login ---
 router.post('/login', (req, res) => {
   const { password } = req.body;
   if (!password || password !== process.env.ADMIN_PASSWORD) {
     return res.status(401).json({ error: 'Invalid password' });
   }
-  // Create JWT for 12h
   const token = jwt.sign({ admin: true }, ADMIN_SECRET, { expiresIn: '12h' });
   res.json({ token });
 });
 
-// List lines: GET /api/admin/lines (JWT protected)
+// --- LINES: CRUD and Stats ---
+
+// List all lines
 router.get('/lines', verifyAdmin, (req, res) => {
   db.all(
     "SELECT id, username, color, text, created_at FROM lines ORDER BY created_at DESC",
@@ -41,7 +44,7 @@ router.get('/lines', verifyAdmin, (req, res) => {
   );
 });
 
-// Delete line: DELETE /api/admin/line/:id (JWT protected)
+// Delete a line
 router.delete('/line/:id', verifyAdmin, (req, res) => {
   const lineId = req.params.id;
   db.run("DELETE FROM lines WHERE id = ?", [lineId], function(err) {
@@ -51,7 +54,7 @@ router.delete('/line/:id', verifyAdmin, (req, res) => {
   });
 });
 
-// Stats: GET /api/admin/stats (JWT protected)
+// Get basic stats
 router.get('/stats', verifyAdmin, (req, res) => {
   db.get("SELECT COUNT(*) AS lines FROM lines", [], (err, linesRow) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -62,25 +65,24 @@ router.get('/stats', verifyAdmin, (req, res) => {
   });
 });
 
-// Get all flagged lines
-router.get('/flags', (req, res) => {
-  if (!isAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+// --- FLAGS: Review & Moderation ---
+
+// List all flags (joined with lines)
+router.get('/flags', verifyAdmin, (req, res) => {
   db.all(`
-    SELECT flags.id, flags.line_id, flags.created_at, lines.text, lines.username, lines.color
-    FROM flags
-    JOIN lines ON lines.id = flags.line_id
-    ORDER BY flags.created_at DESC
+    SELECT f.id, f.line_id, f.reason, f.flagged_by, f.flagged_at, f.resolved,
+           l.text, l.username, l.color
+    FROM line_flags f
+    LEFT JOIN lines l ON f.line_id = l.id
+    ORDER BY f.flagged_at DESC
   `, [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ flags: rows });
   });
 });
 
-
 // Resolve a flag
-router.post('/flag/:id/resolve', (req, res) => {
-  if (!isAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
-
+router.post('/flag/:id/resolve', verifyAdmin, (req, res) => {
   const id = req.params.id;
   db.run("UPDATE line_flags SET resolved = 1 WHERE id = ?", [id], function(err) {
     if (err) return res.status(500).json({ error: err.message });
@@ -88,10 +90,9 @@ router.post('/flag/:id/resolve', (req, res) => {
   });
 });
 
-// Admin log route
-router.post('/log', (req, res) => {
-  if (!isAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+// --- LOGS: Admin Action Logging ---
 
+router.post('/log', verifyAdmin, (req, res) => {
   const { action, target, admin_id } = req.body;
   db.run(
     "INSERT INTO admin_logs (action, target, admin_id) VALUES (?, ?, ?)",
@@ -101,6 +102,22 @@ router.post('/log', (req, res) => {
       res.json({ success: true });
     }
   );
+});
+
+// --- DB/TOOLS: Download and Raw View ---
+
+// Download the full database (admin-only)
+router.get('/download-db', verifyAdmin, (req, res) => {
+  const dbPath = process.env.DB_PATH || '/data/database.sqlite';
+  res.download(dbPath, 'database.sqlite');
+});
+
+// View all raw flags as JSON (admin-only)
+router.get('/debug-flags', verifyAdmin, (req, res) => {
+  db.all('SELECT * FROM line_flags ORDER BY flagged_at DESC', [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
 });
 
 module.exports = router;

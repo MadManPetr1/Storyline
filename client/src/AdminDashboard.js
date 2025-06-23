@@ -1,28 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
-
 import Header from "./components/Header";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 export default function AdminDashboard() {
+  // --- Theme ---
   const [darkMode, setDarkMode] = useState(true);
   const toggleDarkMode = () => setDarkMode(prev => !prev);
 
+  // --- Auth & State ---
   const [token, setToken] = useState(localStorage.getItem("admin_token") || "");
   const [password, setPassword] = useState("");
-  const [lines, setLines] = useState([]);
-  const [stats, setStats] = useState({ lines: 0, contributors: 0 });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // --- Data ---
+  const [stats, setStats] = useState({ lines: 0, contributors: 0 });
+  const [lines, setLines] = useState([]);
   const [flags, setFlags] = useState([]);
+  const [rawFlags, setRawFlags] = useState(null);
+
+  // --- UI ---
   const [tab, setTab] = useState('flags');
 
-  // Secure login
+  // --- Auth: login ---
   async function handleLogin(e) {
     e.preventDefault();
-    setLoading(true);
-    setError("");
+    setLoading(true); setError("");
     try {
       const res = await fetch(`${API_URL}/api/admin/login`, {
         method: "POST",
@@ -35,12 +40,12 @@ export default function AdminDashboard() {
       localStorage.setItem("admin_token", data.token);
       setPassword("");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Login failed.");
     }
     setLoading(false);
   }
 
-  // Fetch all data after login
+  // --- Data fetchers ---
   async function fetchAll() {
     if (!token) return;
     setLoading(true);
@@ -60,14 +65,33 @@ export default function AdminDashboard() {
     setLoading(false);
   }
 
-  useEffect(() => {
-    if (token) {
-      fetchAll();
-      fetchFlags();
+  async function fetchFlags() {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/api/admin/flags`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setFlags(data.flags || []);
+    } catch {
+      setFlags([]);
     }
-  }, [token]);
+  }
 
-  // Delete line
+  async function fetchRawFlags() {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/api/admin/debug-flags`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setRawFlags(data);
+    } catch {
+      setRawFlags([{ error: "Failed to load flags." }]);
+    }
+  }
+
+  // --- Delete line ---
   async function deleteLine(id) {
     if (!window.confirm("Are you sure you want to delete this line?")) return;
     try {
@@ -83,29 +107,28 @@ export default function AdminDashboard() {
     }
   }
 
-  async function fetchFlags() {
-    try {
-      const res = await fetch(`${API_URL}/api/admin/flags`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      setFlags(data.flags || []);
-    } catch {}
-  }
-
-  // Logout
+  // --- Logout ---
   function handleLogout() {
     setToken("");
     localStorage.removeItem("admin_token");
   }
 
-  // --- Render ---
+  // --- Data sync on login ---
+  useEffect(() => {
+    if (token) {
+      fetchAll();
+      fetchFlags();
+    }
+  }, [token]);
+
+  // --- RENDER ---
   return (
     <div className={`app ${darkMode ? 'dark' : 'light'}`}>
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-  
+
       <main style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", margin: "60px 0" }}>
-        <div className="story-card" style={{ width: 860, minHeight: 400 }}>
+        <div className="story-card" style={{ width: 880, minHeight: 420 }}>
+          {/* --- LOGIN PANEL --- */}
           {!token ? (
             <form onSubmit={handleLogin} style={{ maxWidth: 320, margin: "60px auto", textAlign: "center" }}>
               <h2>Admin Login</h2>
@@ -130,8 +153,8 @@ export default function AdminDashboard() {
             </form>
           ) : (
             <>
-              {/* Top Panel */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+              {/* --- HEADER PANEL --- */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
                 <div>
                   <h2 style={{ marginBottom: 4 }}>Admin Dashboard</h2>
                   <div>
@@ -139,19 +162,41 @@ export default function AdminDashboard() {
                     <b>Contributors:</b> {stats.contributors}
                   </div>
                 </div>
-                <button
-                  onClick={handleLogout}
-                  style={{
-                    padding: "8px 20px", borderRadius: 6, background: "#222",
-                    color: "#fff", border: "none", fontWeight: 600, fontSize: 15, cursor: "pointer"
-                  }}
-                >
-                  Logout
-                </button>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <a
+                    href={`${API_URL}/api/admin/download-db`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      background: "#2577f7", color: "#fff", padding: "7px 20px",
+                      borderRadius: 6, fontWeight: 600, textDecoration: "none"
+                    }}
+                  >
+                    ⬇ Download Database
+                  </a>
+                  <button
+                    onClick={fetchRawFlags}
+                    style={{
+                      background: "#36c", color: "#fff", padding: "7px 18px",
+                      borderRadius: 6, fontWeight: 600, border: "none", cursor: "pointer"
+                    }}
+                  >
+                    🧩 Show Raw Flags
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    style={{
+                      padding: "8px 20px", borderRadius: 6, background: "#222",
+                      color: "#fff", border: "none", fontWeight: 600, fontSize: 15, cursor: "pointer"
+                    }}
+                  >
+                    Logout
+                  </button>
+                </div>
               </div>
-                
-              {/* Tab Switch */}
-              <div style={{ display: "flex", gap: 14, marginBottom: 24 }}>
+
+              {/* --- TABS --- */}
+              <div style={{ display: "flex", gap: 14, marginBottom: 18 }}>
                 <button
                   onClick={() => setTab('flags')}
                   style={{
@@ -179,8 +224,19 @@ export default function AdminDashboard() {
                   📜 All Lines
                 </button>
               </div>
-                
-              {/* Flag Table */}
+
+              {/* --- RAW FLAGS JSON (optional) --- */}
+              {rawFlags && (
+                <div style={{
+                  background: "#eee", color: "#333", fontSize: 15, padding: 16,
+                  borderRadius: 8, margin: "20px 0", maxHeight: 240, overflow: "auto"
+                }}>
+                  <b>Raw Flags Table:</b>
+                  <pre style={{ fontSize: 13 }}>{JSON.stringify(rawFlags, null, 2)}</pre>
+                </div>
+              )}
+
+              {/* --- FLAGGED LINES TABLE --- */}
               {tab === 'flags' && (
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
@@ -213,8 +269,8 @@ export default function AdminDashboard() {
                   </tbody>
                 </table>
               )}
-  
-              {/* Lines Table */}
+
+              {/* --- ALL LINES TABLE --- */}
               {tab === 'lines' && (
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
@@ -264,8 +320,8 @@ export default function AdminDashboard() {
                   </tbody>
                 </table>
               )}
-  
-              {/* Error Output */}
+
+              {/* --- ERRORS --- */}
               {error && <div style={{ color: "crimson", marginTop: 12 }}>{error}</div>}
             </>
           )}
