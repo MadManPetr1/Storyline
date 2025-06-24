@@ -1,5 +1,20 @@
 node_modules/
-server/db/database.sqlite
-StorylineProjectFlow.md
+client/node_modules/
+server/node_modules/
 
-Storyline.zip
+.env
+client/.env
+server/.env
+
+server/db/database.sqlite
+
+client/build/
+server/dist/
+
+.vscode/
+*.log
+
+*.zip
+*.tmp
+*.bak
+StorylineProjectFlow.md
